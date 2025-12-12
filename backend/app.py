@@ -1,8 +1,8 @@
 import os
 from flask import Flask
 from dotenv import load_dotenv
-from .database import engine, Base
-from .routes import bp
+from database import engine, Base
+from routes import bp
 from flask_cors import CORS
 load_dotenv()
 def create_app():

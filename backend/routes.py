@@ -4,9 +4,9 @@ from botocore.exceptions import NoCredentialsError
 from flask import Blueprint, request, jsonify, current_app, send_from_directory
 from werkzeug.utils import secure_filename
 from sqlalchemy.orm import Session
-from .database import get_db
-from .models import Match, Event, User
-from .schemas import MatchSchema, EventSchema
+from database import get_db
+from models import Match, Event, User
+from schemas import MatchSchema, EventSchema
 bp = Blueprint('api', __name__)
 ALLOWED_EXT = {'mp4', 'mov', 'avi', 'mkv'}
 def allowed_file(filename):
