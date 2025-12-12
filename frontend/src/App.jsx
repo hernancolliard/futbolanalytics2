@@ -1,5 +1,5 @@
 import React from "react";
-import Upload from "./components/Upload";
+import Upload from "../components/Uploads";
 import MatchList from "./components/MatchList";
 export default function App() {
   return (
