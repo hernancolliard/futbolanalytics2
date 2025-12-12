@@ -1,0 +1,17 @@
+# Environments
+.env
+.env*.local
+/backend/.venv
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Node
+node_modules/
+dist/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
