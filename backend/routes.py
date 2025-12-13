@@ -91,9 +91,7 @@ def uploaded_file(filename):
 def add_event(match_id):
   db = next(get_db())
   data = request.get_json()
-  ev = Event(match_id=match_id, event_type=data.get('event_type'),
-minute=data.get('minute'), x=data.get('x'), y=data.get('y'),
-metadata=data.get('metadata'))
+  ev = Event(match_id=match_id, event_type=data.get('event_type'), minute=data.get('minute'), x=data.get('x'), y=data.get('y'), meta_data=data.get('metadata'))
   db.add(ev)
   db.commit()
   db.refresh(ev)

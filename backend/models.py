@@ -28,6 +28,6 @@ class Event(Base):
   minute = Column(Integer)
   x = Column(Integer) # optional pitch coordinates
   y = Column(Integer)
-  metadata = Column(Text)
+  meta_data = Column("metadata", Text)
   created_at = Column(DateTime(timezone=True), server_default=func.now())
   match = relationship('Match', back_populates='events')

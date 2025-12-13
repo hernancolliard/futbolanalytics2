@@ -16,4 +16,4 @@ class EventSchema(Schema):
  minute = fields.Int()
  x = fields.Int()
  y = fields.Int()
- metadata = fields.Str()
+ metadata = fields.Str(attribute="meta_data")
