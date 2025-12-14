@@ -9,41 +9,68 @@ import EventsTable from './EventsTable';
 import api from '../src/services/api';
 
 const MatchAnalysis = () => {
-  const [events, setEvents] = useState([
-    { time: '12:33', player: 'Pérez', action: 'Pase', result: '✅', zone: 2 },
-    { time: '13:10', player: 'Gómez', action: 'Tiro', result: '❌', zone: 5 },
-  ]);
+  const [events, setEvents] = useState([]);
   const [videoTime, setVideoTime] = useState(0);
   const [selectedZone, setSelectedZone] = useState(1);
   const [players, setPlayers] = useState([]);
+  const matchId = 1; // Placeholder for the current match ID
 
   useEffect(() => {
-    const fetchPlayers = async () => {
+    const fetchData = async () => {
       try {
-        const fetchedPlayers = await api.getPlayers();
-        setPlayers(fetchedPlayers.map(p => p.name));
+        const [playersResponse, eventsResponse] = await Promise.all([
+          api.getPlayers(),
+          api.getEvents(matchId)
+        ]);
+        setPlayers(playersResponse.map(p => p.name));
+        setEvents(eventsResponse.data);
       } catch (error) {
-        console.error("Error fetching players:", error);
-        // Set some default players if the API fails
+        console.error("Error fetching data:", error);
+        // Set some default data if the API fails
         setPlayers(['Pérez', 'Gómez', 'Rodríguez', 'Sánchez']);
+        setEvents([
+          { time: '12:33', player: 'Pérez', action: 'Pase', result: '✅', zone: 2 },
+          { time: '13:10', player: 'Gómez', action: 'Tiro', result: '❌', zone: 5 },
+        ]);
       }
     };
-    fetchPlayers();
-  }, []);
+    fetchData();
+  }, [matchId]);
 
   const zones = [1, 2, 3, 4, 5, 6];
 
-  const addEvent = (event) => {
-    setEvents(prevEvents => [...prevEvents, event]);
+  const addEvent = async (event) => {
+    try {
+      const newEvent = await api.createEvent(matchId, event);
+      setEvents(prevEvents => [...prevEvents, newEvent.data]);
+    } catch (error) {
+      console.error("Error creating event:", error);
+    }
   };
 
-  const deleteEvent = (index) => {
-    setEvents(prevEvents => prevEvents.filter((_, i) => i !== index));
+  const deleteEvent = async (eventId) => {
+    try {
+      await api.deleteEvent(eventId);
+      setEvents(prevEvents => prevEvents.filter(event => event.id !== eventId));
+    } catch (error) {
+      console.error("Error deleting event:", error);
+    }
   };
 
-  const updateEvent = (index, updatedEvent) => {
-    // For now, this is a placeholder. A real implementation would involve an editing UI.
-    alert(`Editing event at index: ${index}`);
+  const updateEvent = async (eventId) => {
+    const newResult = prompt("Enter the new result for the event:");
+    if (newResult) {
+      try {
+        const updatedEvent = await api.updateEvent(eventId, { result: newResult });
+        setEvents(prevEvents => 
+          prevEvents.map(event => 
+            event.id === eventId ? updatedEvent.data : event
+          )
+        );
+      } catch (error) {
+        console.error("Error updating event:", error);
+      }
+    }
   };
 
   const handleTimeUpdate = (time) => {

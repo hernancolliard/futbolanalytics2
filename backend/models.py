@@ -24,10 +24,11 @@ class Event(Base):
   __tablename__ = 'events'
   id = Column(Integer, primary_key=True, index=True)
   match_id = Column(Integer, ForeignKey('matches.id'))
-  event_type = Column(String(80)) # pass, shot, tackle, etc.
-  minute = Column(Integer)
-  x = Column(Integer) # optional pitch coordinates
-  y = Column(Integer)
+  time = Column(String(10)) # MM:SS format
+  player = Column(String(120))
+  action = Column(String(80)) # pass, shot, tackle, etc.
+  result = Column(String(20)) # success, fail, etc.
+  zone = Column(Integer)
   meta_data = Column("metadata", Text)
   created_at = Column(DateTime(timezone=True), server_default=func.now())
   match = relationship('Match', back_populates='events')

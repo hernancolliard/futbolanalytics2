@@ -24,8 +24,8 @@ const EventsTable = ({ events, onDeleteEvent, onUpdateEvent }) => {
               <td>{event.action}</td>
               <td>{event.result}</td>
               <td>{event.zone}</td>
-              <td className="action-icons"><button onClick={() => onUpdateEvent(index)}>✏️</button></td>
-              <td className="action-icons"><button onClick={() => onDeleteEvent(index)}>🗑️</button></td>
+              <td className="action-icons"><button onClick={() => onUpdateEvent(event.id)}>✏️</button></td>
+              <td className="action-icons"><button onClick={() => onDeleteEvent(event.id)}>🗑️</button></td>
             </tr>
           ))}
         </tbody>

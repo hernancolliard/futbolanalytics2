@@ -86,16 +86,55 @@ def upload_video_to_s3(match_id):
 @bp.route('/uploads/<path:filename>')
 def uploaded_file(filename):
   return send_from_directory(current_app.config['UPLOAD_FOLDER'], filename)
+@bp.route('/matches/<int:match_id>/events', methods=['GET'])
+def get_events(match_id):
+    db = next(get_db())
+    match = db.query(Match).get(match_id)
+    if not match:
+        return jsonify({"error": "Match not found"}), 404
+    return jsonify(EventSchema(many=True).dump(match.events))
+
 # Minimal event endpoint
 @bp.route('/matches/<int:match_id>/events', methods=['POST'])
 def add_event(match_id):
   db = next(get_db())
   data = request.get_json()
-  ev = Event(match_id=match_id, event_type=data.get('event_type'), minute=data.get('minute'), x=data.get('x'), y=data.get('y'), meta_data=data.get('metadata'))
+  ev = Event(
+      match_id=match_id, 
+      time=data.get('time'),
+      player=data.get('player'),
+      action=data.get('action'),
+      result=data.get('result'),
+      zone=data.get('zone'),
+      meta_data=data.get('metadata')
+  )
   db.add(ev)
   db.commit()
   db.refresh(ev)
   return jsonify(EventSchema().dump(ev)), 201
+
+@bp.route('/events/<int:event_id>', methods=['PUT'])
+def update_event(event_id):
+    db = next(get_db())
+    event = db.query(Event).get(event_id)
+    if not event:
+        return jsonify({"error": "Event not found"}), 404
+    data = request.get_json()
+    for key, value in data.items():
+        setattr(event, key, value)
+    db.commit()
+    db.refresh(event)
+    return jsonify(EventSchema().dump(event))
+
+@bp.route('/events/<int:event_id>', methods=['DELETE'])
+def delete_event(event_id):
+    db = next(get_db())
+    event = db.query(Event).get(event_id)
+    if not event:
+        return jsonify({"error": "Event not found"}), 404
+    db.delete(event)
+    db.commit()
+    return jsonify({"message": "Event deleted successfully"}), 200
 
 @bp.route('/players', methods=['GET'])
 def list_players():

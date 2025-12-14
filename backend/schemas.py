@@ -12,8 +12,9 @@ class MatchSchema(Schema):
 class EventSchema(Schema):
  id = fields.Int()
  match_id = fields.Int()
- event_type = fields.Str()
- minute = fields.Int()
- x = fields.Int()
- y = fields.Int()
+ time = fields.Str()
+ player = fields.Str()
+ action = fields.Str()
+ result = fields.Str()
+ zone = fields.Int()
  metadata = fields.Str(attribute="meta_data")
