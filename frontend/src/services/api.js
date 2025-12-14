@@ -1,6 +1,24 @@
-import axios from "axios";
-const API = axios.create({
-  baseURL:
-    import.meta.env.VITE_API_URL || "https://futbolanalytics2.onrender.com/api",
+import axios from 'axios';
+
+const apiClient = axios.create({
+  baseURL: '/api',
 });
-export default API;
+
+export const getPlayers = async () => {
+  const response = await apiClient.get('/players');
+  return response.data;
+};
+
+export const getMatches = () => {
+    return apiClient.get('/matches');
+};
+
+export const createMatch = (data) => {
+    return apiClient.post('/matches', data);
+};
+
+export default {
+    getMatches,
+    createMatch,
+    getPlayers,
+}

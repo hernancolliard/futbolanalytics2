@@ -6,7 +6,7 @@ from werkzeug.utils import secure_filename
 from sqlalchemy.orm import Session
 from database import get_db
 from models import Match, Event, User
-from schemas import MatchSchema, EventSchema
+from schemas import MatchSchema, EventSchema, UserSchema
 bp = Blueprint('api', __name__)
 ALLOWED_EXT = {'mp4', 'mov', 'avi', 'mkv'}
 def allowed_file(filename):
@@ -96,3 +96,9 @@ def add_event(match_id):
   db.commit()
   db.refresh(ev)
   return jsonify(EventSchema().dump(ev)), 201
+
+@bp.route('/players', methods=['GET'])
+def list_players():
+    db = next(get_db())
+    players = db.query(User).all()
+    return jsonify(UserSchema(many=True).dump(players))

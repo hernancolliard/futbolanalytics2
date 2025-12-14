@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './MatchAnalysis.css';
 import MatchHeader from './MatchHeader';
 import VideoPlayer from './VideoPlayer';
@@ -6,6 +6,7 @@ import EventManager from './EventManager';
 import FieldZones from './FieldZones';
 import MatchTimeline from './MatchTimeline';
 import EventsTable from './EventsTable';
+import api from '../services/api';
 
 const MatchAnalysis = () => {
   const [events, setEvents] = useState([
@@ -14,8 +15,22 @@ const MatchAnalysis = () => {
   ]);
   const [videoTime, setVideoTime] = useState(0);
   const [selectedZone, setSelectedZone] = useState(1);
+  const [players, setPlayers] = useState([]);
 
-  const players = ['Pérez', 'Gómez', 'Rodríguez', 'Sánchez'];
+  useEffect(() => {
+    const fetchPlayers = async () => {
+      try {
+        const fetchedPlayers = await api.getPlayers();
+        setPlayers(fetchedPlayers.map(p => p.name));
+      } catch (error) {
+        console.error("Error fetching players:", error);
+        // Set some default players if the API fails
+        setPlayers(['Pérez', 'Gómez', 'Rodríguez', 'Sánchez']);
+      }
+    };
+    fetchPlayers();
+  }, []);
+
   const zones = [1, 2, 3, 4, 5, 6];
 
   const addEvent = (event) => {
