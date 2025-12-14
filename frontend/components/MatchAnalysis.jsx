@@ -8,12 +8,12 @@ import MatchTimeline from './MatchTimeline';
 import EventsTable from './EventsTable';
 import api from '../src/services/api';
 
-const MatchAnalysis = () => {
+const MatchAnalysis = ({ matchId }) => {
   const [events, setEvents] = useState([]);
   const [videoTime, setVideoTime] = useState(0);
   const [selectedZone, setSelectedZone] = useState(1);
   const [players, setPlayers] = useState([]);
-  const matchId = 1; // Placeholder for the current match ID
+
 
   useEffect(() => {
     const fetchData = async () => {
