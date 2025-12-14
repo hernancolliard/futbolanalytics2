@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './MatchAnalysis.css';
 import MatchHeader from './MatchHeader';
 import VideoPlayer from './VideoPlayer';
@@ -13,6 +13,11 @@ const MatchAnalysis = ({ matchId }) => {
   const [videoTime, setVideoTime] = useState(0);
   const [selectedZone, setSelectedZone] = useState(1);
   const [players, setPlayers] = useState([]);
+  const [videoDuration, setVideoDuration] = useState(0);
+
+  const handleDurationChange = (duration) => {
+    setVideoDuration(duration);
+  };
 
 
   useEffect(() => {
@@ -73,20 +78,34 @@ const MatchAnalysis = ({ matchId }) => {
     }
   };
 
+  const videoPlayerRef = useRef(null);
+
   const handleTimeUpdate = (time) => {
     setVideoTime(time);
   };
 
+  const handleDurationChange = (duration) => {
+    setVideoDuration(duration);
+  };
+
   const handleZoneSelect = (zone) => {
     setSelectedZone(zone);
-  }
+  };
+
+  const handleTimelineClick = (time) => {
+    videoPlayerRef.current.seek(time);
+  };
 
   return (
     <div className="match-analysis-container">
       <MatchHeader />
       <div className="main-content">
         <div className="left-panel">
-          <VideoPlayer onTimeUpdate={handleTimeUpdate} />
+          <VideoPlayer 
+            ref={videoPlayerRef}
+            onTimeUpdate={handleTimeUpdate} 
+            onDurationChange={handleDurationChange} 
+          />
         </div>
         <div className="right-panel">
           <EventManager 
@@ -100,7 +119,12 @@ const MatchAnalysis = ({ matchId }) => {
         </div>
       </div>
       <FieldZones onZoneSelect={handleZoneSelect} selectedZone={selectedZone} />
-      <MatchTimeline />
+      <MatchTimeline 
+        events={events} 
+        videoTime={videoTime} 
+        videoDuration={videoDuration} 
+        onTimelineClick={handleTimelineClick} 
+      />
       <EventsTable events={events} onDeleteEvent={deleteEvent} onUpdateEvent={updateEvent} />
     </div>
   );

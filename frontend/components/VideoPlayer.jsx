@@ -1,7 +1,13 @@
-import React, { useRef } from 'react';
+import React, { useRef, useImperativeHandle, forwardRef } from 'react';
 
-const VideoPlayer = ({ onTimeUpdate }) => {
+const VideoPlayer = forwardRef(({ onTimeUpdate, onDurationChange }, ref) => {
   const videoRef = useRef(null);
+
+  useImperativeHandle(ref, () => ({
+    seek(time) {
+      videoRef.current.currentTime = time;
+    }
+  }));
 
   const handlePlayPause = () => {
     if (videoRef.current.paused) {
@@ -33,6 +39,7 @@ const VideoPlayer = ({ onTimeUpdate }) => {
         width="100%"
         style={{ borderRadius: '4px', marginBottom: '1rem' }}
         onTimeUpdate={() => onTimeUpdate(videoRef.current.currentTime)}
+        onLoadedMetadata={() => onDurationChange(videoRef.current.duration)}
       />
       <div className="button-group">
         <button onClick={handlePlayPause}>⏯</button>
@@ -44,6 +51,6 @@ const VideoPlayer = ({ onTimeUpdate }) => {
       </div>
     </div>
   );
-};
+});
 
 export default VideoPlayer;
