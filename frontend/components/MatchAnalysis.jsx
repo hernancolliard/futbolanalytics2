@@ -62,19 +62,16 @@ const MatchAnalysis = ({ matchId }) => {
     }
   };
 
-  const updateEvent = async (eventId) => {
-    const newResult = prompt("Enter the new result for the event:");
-    if (newResult) {
-      try {
-        const updatedEvent = await api.updateEvent(eventId, { result: newResult });
-        setEvents(prevEvents => 
-          prevEvents.map(event => 
-            event.id === eventId ? updatedEvent.data : event
-          )
-        );
-      } catch (error) {
-        console.error("Error updating event:", error);
-      }
+  const updateEvent = async (eventId, updatedEventData) => {
+    try {
+      const updatedEvent = await api.updateEvent(eventId, updatedEventData);
+      setEvents(prevEvents => 
+        prevEvents.map(event => 
+          event.id === eventId ? updatedEvent.data : event
+        )
+      );
+    } catch (error) {
+      console.error("Error updating event:", error);
     }
   };
 
