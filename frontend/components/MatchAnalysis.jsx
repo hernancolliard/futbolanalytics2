@@ -6,7 +6,7 @@ import EventManager from './EventManager';
 import FieldZones from './FieldZones';
 import MatchTimeline from './MatchTimeline';
 import EventsTable from './EventsTable';
-import api from '../services/api';
+import api from '../src/services/api';
 
 const MatchAnalysis = () => {
   const [events, setEvents] = useState([
