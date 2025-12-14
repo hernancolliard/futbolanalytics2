@@ -1,6 +1,6 @@
 import React from 'react';
 
-const EventsTable = () => {
+const EventsTable = ({ events }) => {
   return (
     <div className="events-table">
       <h2>📋 EVENTOS REGISTRADOS</h2>
@@ -17,25 +17,17 @@ const EventsTable = () => {
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>12:33</td>
-            <td>Pérez</td>
-            <td>Pase</td>
-            <td>✅</td>
-            <td>2</td>
-            <td className="action-icons"><button>✏️</button></td>
-            <td className="action-icons"><button>🗑️</button></td>
-          </tr>
-          <tr>
-            <td>13:10</td>
-            <td>Gómez</td>
-            <td>Tiro</td>
-            <td>❌</td>
-            <td>5</td>
-            <td className="action-icons"><button>✏️</button></td>
-            <td className="action-icons"><button>🗑️</button></td>
-          </tr>
-          {/* More events will be listed here */}
+          {events.map((event, index) => (
+            <tr key={index}>
+              <td>{event.time}</td>
+              <td>{event.player}</td>
+              <td>{event.action}</td>
+              <td>{event.result}</td>
+              <td>{event.zone}</td>
+              <td className="action-icons"><button>✏️</button></td>
+              <td className="action-icons"><button>🗑️</button></td>
+            </tr>
+          ))}
         </tbody>
       </table>
     </div>

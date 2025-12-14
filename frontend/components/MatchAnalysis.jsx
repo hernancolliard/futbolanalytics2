@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './MatchAnalysis.css';
 import MatchHeader from './MatchHeader';
 import VideoPlayer from './VideoPlayer';
@@ -8,6 +8,18 @@ import MatchTimeline from './MatchTimeline';
 import EventsTable from './EventsTable';
 
 const MatchAnalysis = () => {
+  const [events, setEvents] = useState([
+    { time: '12:33', player: 'Pérez', action: 'Pase', result: '✅', zone: 2 },
+    { time: '13:10', player: 'Gómez', action: 'Tiro', result: '❌', zone: 5 },
+  ]);
+
+  const players = ['Pérez', 'Gómez', 'Rodríguez', 'Sánchez'];
+  const zones = [1, 2, 3, 4, 5, 6];
+
+  const addEvent = (event) => {
+    setEvents(prevEvents => [...prevEvents, event]);
+  };
+
   return (
     <div className="match-analysis-container">
       <MatchHeader />
@@ -16,12 +28,12 @@ const MatchAnalysis = () => {
           <VideoPlayer />
         </div>
         <div className="right-panel">
-          <EventManager />
+          <EventManager onAddEvent={addEvent} players={players} zones={zones} />
         </div>
       </div>
       <FieldZones />
       <MatchTimeline />
-      <EventsTable />
+      <EventsTable events={events} />
     </div>
   );
 };
