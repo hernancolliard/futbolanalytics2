@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 
-const VideoPlayer = () => {
+const VideoPlayer = ({ onTimeUpdate }) => {
   const videoRef = useRef(null);
 
   const handlePlayPause = () => {
@@ -32,6 +32,7 @@ const VideoPlayer = () => {
         controls 
         width="100%"
         style={{ borderRadius: '4px', marginBottom: '1rem' }}
+        onTimeUpdate={() => onTimeUpdate(videoRef.current.currentTime)}
       />
       <div className="button-group">
         <button onClick={handlePlayPause}>⏯</button>

@@ -1,20 +1,17 @@
 import React, { useState } from 'react';
 
-const EventManager = ({ onAddEvent, players, zones }) => {
+const EventManager = ({ onAddEvent, players, zones, videoTime, selectedZone, onZoneChange }) => {
   const [selectedPlayer, setSelectedPlayer] = useState(players[0]);
-  const [selectedZone, setSelectedZone] = useState(zones[0]);
+
+  const formatTime = (timeInSeconds) => {
+    const minutes = Math.floor(timeInSeconds / 60).toString().padStart(2, '0');
+    const seconds = Math.floor(timeInSeconds % 60).toString().padStart(2, '0');
+    return `${minutes}:${seconds}`;
+  };
 
   const handleEventClick = (action, result) => {
-    // Helper to format the current time as MM:SS
-    const getCurrentTime = () => {
-        const now = new Date();
-        const minutes = String(now.getMinutes()).padStart(2, '0');
-        const seconds = String(now.getSeconds()).padStart(2, '0');
-        return `${minutes}:${seconds}`;
-    }
-
     const newEvent = {
-      time: getCurrentTime(),
+      time: formatTime(videoTime),
       player: selectedPlayer,
       action,
       result,
@@ -43,7 +40,7 @@ const EventManager = ({ onAddEvent, players, zones }) => {
             <option key={player} value={player}>{player}</option>
           ))}
         </select>
-        <select value={selectedZone} onChange={(e) => setSelectedZone(e.target.value)}>
+        <select value={selectedZone} onChange={(e) => onZoneChange(e.target.value)}>
           <option disabled>▼ Zona</option>
           {zones.map(zone => (
             <option key={zone} value={zone}>{zone}</option>

@@ -1,6 +1,6 @@
 import React from 'react';
 
-const EventsTable = ({ events }) => {
+const EventsTable = ({ events, onDeleteEvent, onUpdateEvent }) => {
   return (
     <div className="events-table">
       <h2>📋 EVENTOS REGISTRADOS</h2>
@@ -24,8 +24,8 @@ const EventsTable = ({ events }) => {
               <td>{event.action}</td>
               <td>{event.result}</td>
               <td>{event.zone}</td>
-              <td className="action-icons"><button>✏️</button></td>
-              <td className="action-icons"><button>🗑️</button></td>
+              <td className="action-icons"><button onClick={() => onUpdateEvent(index)}>✏️</button></td>
+              <td className="action-icons"><button onClick={() => onDeleteEvent(index)}>🗑️</button></td>
             </tr>
           ))}
         </tbody>

@@ -12,6 +12,8 @@ const MatchAnalysis = () => {
     { time: '12:33', player: 'Pérez', action: 'Pase', result: '✅', zone: 2 },
     { time: '13:10', player: 'Gómez', action: 'Tiro', result: '❌', zone: 5 },
   ]);
+  const [videoTime, setVideoTime] = useState(0);
+  const [selectedZone, setSelectedZone] = useState(1);
 
   const players = ['Pérez', 'Gómez', 'Rodríguez', 'Sánchez'];
   const zones = [1, 2, 3, 4, 5, 6];
@@ -20,20 +22,44 @@ const MatchAnalysis = () => {
     setEvents(prevEvents => [...prevEvents, event]);
   };
 
+  const deleteEvent = (index) => {
+    setEvents(prevEvents => prevEvents.filter((_, i) => i !== index));
+  };
+
+  const updateEvent = (index, updatedEvent) => {
+    // For now, this is a placeholder. A real implementation would involve an editing UI.
+    alert(`Editing event at index: ${index}`);
+  };
+
+  const handleTimeUpdate = (time) => {
+    setVideoTime(time);
+  };
+
+  const handleZoneSelect = (zone) => {
+    setSelectedZone(zone);
+  }
+
   return (
     <div className="match-analysis-container">
       <MatchHeader />
       <div className="main-content">
         <div className="left-panel">
-          <VideoPlayer />
+          <VideoPlayer onTimeUpdate={handleTimeUpdate} />
         </div>
         <div className="right-panel">
-          <EventManager onAddEvent={addEvent} players={players} zones={zones} />
+          <EventManager 
+            onAddEvent={addEvent} 
+            players={players} 
+            zones={zones} 
+            videoTime={videoTime}
+            selectedZone={selectedZone}
+            onZoneChange={handleZoneSelect}
+          />
         </div>
       </div>
-      <FieldZones />
+      <FieldZones onZoneSelect={handleZoneSelect} selectedZone={selectedZone} />
       <MatchTimeline />
-      <EventsTable events={events} />
+      <EventsTable events={events} onDeleteEvent={deleteEvent} onUpdateEvent={updateEvent} />
     </div>
   );
 };
