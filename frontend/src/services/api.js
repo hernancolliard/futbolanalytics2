@@ -27,6 +27,14 @@ export const createMatch = (data) => {
     return apiClient.post('/matches', data);
 };
 
+export const updateMatch = (matchId, data) => {
+    return apiClient.put(`/matches/${matchId}`, data);
+};
+
+export const deleteMatch = (matchId) => {
+    return apiClient.delete(`/matches/${matchId}`);
+};
+
 export const getEvents = (matchId) => {
     return apiClient.get(`/matches/${matchId}/events`);
 };
@@ -54,6 +62,8 @@ export const register = (userData) => {
 export default {
     getMatches,
     createMatch,
+    updateMatch,
+    deleteMatch,
     getPlayers,
     getEvents,
     createEvent,
