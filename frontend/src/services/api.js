@@ -4,6 +4,16 @@ const apiClient = axios.create({
   baseURL: '/api',
 });
 
+apiClient.interceptors.request.use(config => {
+    const token = localStorage.getItem('token');
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+}, error => {
+    return Promise.reject(error);
+});
+
 export const getPlayers = async () => {
   const response = await apiClient.get('/players');
   return response.data;
@@ -33,6 +43,14 @@ export const updateEvent = (eventId, eventData) => {
     return apiClient.put(`/events/${eventId}`, eventData);
 };
 
+export const login = (credentials) => {
+    return apiClient.post('/login', credentials);
+};
+
+export const register = (userData) => {
+    return apiClient.post('/register', userData);
+};
+
 export default {
     getMatches,
     createMatch,
@@ -41,4 +59,6 @@ export default {
     createEvent,
     deleteEvent,
     updateEvent,
+    login,
+    register,
 }

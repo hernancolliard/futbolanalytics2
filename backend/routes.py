@@ -1,12 +1,15 @@
-import os
+from flask_jwt_extended import create_access_token, jwt_required
+from werkzeug.security import generate_password_hash, check_password_hash
+from schemas import MatchSchema, EventSchema, UserSchema
+from models import Match, Event, User
+from database import get_db
+from sqlalchemy.orm import Session
+from werkzeug.utils import secure_filename
+from flask import Blueprint, request, jsonify, current_app, send_from_directory
 import boto3
 from botocore.exceptions import NoCredentialsError
-from flask import Blueprint, request, jsonify, current_app, send_from_directory
-from werkzeug.utils import secure_filename
-from sqlalchemy.orm import Session
-from database import get_db
-from models import Match, Event, User
-from schemas import MatchSchema, EventSchema, UserSchema
+import os
+
 bp = Blueprint('api', __name__)
 ALLOWED_EXT = {'mp4', 'mov', 'avi', 'mkv'}
 def allowed_file(filename):
@@ -36,12 +39,14 @@ def _upload_to_s3(file, filename):
 
 
 @bp.route('/matches', methods=['GET'])
+@jwt_required()
 def list_matches():
   db = next(get_db())
 
   matches = db.query(Match).order_by(Match.date.desc()).all()
   return jsonify(MatchSchema(many=True).dump(matches))
 @bp.route('/matches', methods=['POST'])
+@jwt_required()
 def create_match():
   db = next(get_db())
   title = request.form.get('title')
@@ -64,6 +69,7 @@ video_path=video_path)
   return jsonify(MatchSchema().dump(match)), 201
 
 @bp.route('/matches/<int:match_id>/video', methods=['POST'])
+@jwt_required()
 def upload_video_to_s3(match_id):
     db = next(get_db())
     match = db.query(Match).get(match_id)
@@ -87,6 +93,7 @@ def upload_video_to_s3(match_id):
 def uploaded_file(filename):
   return send_from_directory(current_app.config['UPLOAD_FOLDER'], filename)
 @bp.route('/matches/<int:match_id>/events', methods=['GET'])
+@jwt_required()
 def get_events(match_id):
     db = next(get_db())
     match = db.query(Match).get(match_id)
@@ -96,6 +103,7 @@ def get_events(match_id):
 
 # Minimal event endpoint
 @bp.route('/matches/<int:match_id>/events', methods=['POST'])
+@jwt_required()
 def add_event(match_id):
   db = next(get_db())
   data = request.get_json()
@@ -114,6 +122,7 @@ def add_event(match_id):
   return jsonify(EventSchema().dump(ev)), 201
 
 @bp.route('/events/<int:event_id>', methods=['PUT'])
+@jwt_required()
 def update_event(event_id):
     db = next(get_db())
     event = db.query(Event).get(event_id)
@@ -127,6 +136,7 @@ def update_event(event_id):
     return jsonify(EventSchema().dump(event))
 
 @bp.route('/events/<int:event_id>', methods=['DELETE'])
+@jwt_required()
 def delete_event(event_id):
     db = next(get_db())
     event = db.query(Event).get(event_id)
@@ -136,8 +146,59 @@ def delete_event(event_id):
     db.commit()
     return jsonify({"message": "Event deleted successfully"}), 200
 
+
+
+
+
 @bp.route('/players', methods=['GET'])
+@jwt_required()
 def list_players():
     db = next(get_db())
     players = db.query(User).all()
     return jsonify(UserSchema(many=True).dump(players))
+
+@bp.route('/register', methods=['POST'])
+
+def register():
+
+    db = next(get_db())
+
+    data = request.get_json()
+
+    hashed_password = generate_password_hash(data['password'])
+
+    new_user = User(
+
+        email=data['email'],
+
+        name=data['name'],
+
+        password_hash=hashed_password
+
+    )
+
+    db.add(new_user)
+
+    db.commit()
+
+    return jsonify({"message": "User created successfully"}), 201
+
+
+
+@bp.route('/login', methods=['POST'])
+
+def login():
+
+    db = next(get_db())
+
+    data = request.get_json()
+
+    user = db.query(User).filter_by(email=data['email']).first()
+
+    if user and check_password_hash(user.password_hash, data['password']):
+
+        access_token = create_access_token(identity=user.id)
+
+        return jsonify(access_token=access_token)
+
+    return jsonify({"message": "Invalid credentials"}), 401
