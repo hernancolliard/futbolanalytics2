@@ -11,7 +11,7 @@ import api from '../src/services/api';
 const MatchAnalysis = ({ matchId }) => {
   const [events, setEvents] = useState([]);
   const [videoTime, setVideoTime] = useState(0);
-  const [selectedZone, setSelectedZone] = useState(1);
+  const [selectedZone, setSelectedZone] = useState(null);
   const [players, setPlayers] = useState([]);
   const [videoDuration, setVideoDuration] = useState(0);
 
@@ -88,6 +88,14 @@ const MatchAnalysis = ({ matchId }) => {
     videoPlayerRef.current.seek(time);
   };
 
+  const filteredEvents = selectedZone
+    ? events.filter(event => event.zone === selectedZone)
+    : events;
+
+  const handleShowAllEvents = () => {
+    setSelectedZone(null);
+  };
+
   return (
     <div className="match-analysis-container">
       <MatchHeader />
@@ -111,13 +119,18 @@ const MatchAnalysis = ({ matchId }) => {
         </div>
       </div>
       <FieldZones onZoneSelect={handleZoneSelect} selectedZone={selectedZone} />
+      {selectedZone && (
+        <button onClick={handleShowAllEvents} className="show-all-btn">
+          Mostrar Todos los Eventos
+        </button>
+      )}
       <MatchTimeline 
-        events={events} 
+        events={filteredEvents} 
         videoTime={videoTime} 
         videoDuration={videoDuration} 
         onTimelineClick={handleTimelineClick} 
       />
-      <EventsTable events={events} onDeleteEvent={deleteEvent} onUpdateEvent={updateEvent} />
+      <EventsTable events={filteredEvents} onDeleteEvent={deleteEvent} onUpdateEvent={updateEvent} />
     </div>
   );
 };
