@@ -182,11 +182,13 @@ def register():
 
     db.commit()
 
-    db.refresh(new_user) # Refresh user to get its ID
+        db.refresh(new_user) # Refresh user to get its ID
 
-    access_token = create_access_token(identity=new_user.id) # Generate token for new user
+        print(f"New user ID: {new_user.id}") # Debugging
 
-    return jsonify(access_token=access_token), 201
+        access_token = create_access_token(identity=new_user.id) # Generate token for new user
+
+        return jsonify(access_token=access_token), 201
 
 
 
