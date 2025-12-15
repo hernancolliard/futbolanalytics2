@@ -1,0 +1,19 @@
+.drawing-tools {
+    padding: 10px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    margin-top: 10px;
+}
+
+.drawing-tools h3 {
+    text-align: center;
+    margin-top: 0;
+}
+
+.drawing-tools .tools, .drawing-tools .options {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px;
+}

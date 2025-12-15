@@ -1,7 +1,25 @@
-import React, { useRef, useImperativeHandle, forwardRef } from 'react';
+import React, { useRef, useImperativeHandle, forwardRef, useState, useEffect } from 'react';
+import DrawingCanvas from './DrawingCanvas';
 
-const VideoPlayer = forwardRef(({ onTimeUpdate, onDurationChange }, ref) => {
+const VideoPlayer = forwardRef(({ onTimeUpdate, onDurationChange, tool, color, size: drawingSize }, ref) => {
   const videoRef = useRef(null);
+  const [size, setSize] = useState({ width: 0, height: 0 });
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (video) {
+        const updateSize = () => {
+            setSize({ width: video.clientWidth, height: video.clientHeight });
+        };
+        video.addEventListener('loadedmetadata', updateSize);
+        window.addEventListener('resize', updateSize);
+        updateSize(); // Initial size
+        return () => {
+            video.removeEventListener('loadedmetadata', updateSize);
+            window.removeEventListener('resize', updateSize);
+        };
+    }
+  }, []);
 
   useImperativeHandle(ref, () => ({
     seek(time) {
@@ -30,7 +48,7 @@ const VideoPlayer = forwardRef(({ onTimeUpdate, onDurationChange }, ref) => {
   };
 
   return (
-    <div className="video-player">
+    <div className="video-player" style={{ position: 'relative' }}>
       <h2>🎥 VIDEO</h2>
       <video 
         ref={videoRef}
@@ -39,7 +57,20 @@ const VideoPlayer = forwardRef(({ onTimeUpdate, onDurationChange }, ref) => {
         width="100%"
         style={{ borderRadius: '4px', marginBottom: '1rem' }}
         onTimeUpdate={() => onTimeUpdate(videoRef.current.currentTime)}
-        onLoadedMetadata={() => onDurationChange(videoRef.current.duration)}
+        onLoadedMetadata={() => {
+            onDurationChange(videoRef.current.duration);
+            const video = videoRef.current;
+            if(video) {
+                setSize({ width: video.clientWidth, height: video.clientHeight });
+            }
+        }}
+      />
+      <DrawingCanvas 
+        width={size.width} 
+        height={size.height} 
+        tool={tool}
+        color={color}
+        size={drawingSize}
       />
       <div className="button-group">
         <button onClick={handlePlayPause}>⏯</button>
@@ -54,3 +85,4 @@ const VideoPlayer = forwardRef(({ onTimeUpdate, onDurationChange }, ref) => {
 });
 
 export default VideoPlayer;
+

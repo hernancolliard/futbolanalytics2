@@ -6,6 +6,7 @@ import EventManager from './EventManager';
 import FieldZones from './FieldZones';
 import MatchTimeline from './MatchTimeline';
 import EventsTable from './EventsTable';
+import DrawingTools from './DrawingTools';
 import api from '../src/services/api';
 
 const MatchAnalysis = ({ matchId }) => {
@@ -14,7 +15,10 @@ const MatchAnalysis = ({ matchId }) => {
   const [selectedZone, setSelectedZone] = useState(null);
   const [players, setPlayers] = useState([]);
   const [videoDuration, setVideoDuration] = useState(0);
-
+  const [drawingTool, setDrawingTool] = useState('pen');
+  const [drawingColor, setDrawingColor] = useState('#ff0000');
+  const [drawingSize, setDrawingSize] = useState(5);
+  
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -105,6 +109,14 @@ const MatchAnalysis = ({ matchId }) => {
             ref={videoPlayerRef}
             onTimeUpdate={handleTimeUpdate} 
             onDurationChange={handleDurationChange} 
+            tool={drawingTool}
+            color={drawingColor}
+            size={drawingSize}
+          />
+          <DrawingTools
+            onToolChange={setDrawingTool}
+            onColorChange={setDrawingColor}
+            onSizeChange={setDrawingSize}
           />
         </div>
         <div className="right-panel">
@@ -134,5 +146,6 @@ const MatchAnalysis = ({ matchId }) => {
     </div>
   );
 };
+
 
 export default MatchAnalysis;
