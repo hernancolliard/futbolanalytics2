@@ -161,34 +161,20 @@ def list_players():
 @bp.route('/register', methods=['POST'])
 
 def register():
-
     db = next(get_db())
-
     data = request.get_json()
-
     hashed_password = generate_password_hash(data['password'])
-
     new_user = User(
-
         email=data['email'],
-
         name=data['name'],
-
         password_hash=hashed_password
-
     )
-
-        db.add(new_user)
-
-        db.commit()
-
-        db.refresh(new_user) # Refresh user to get its ID
-
-        print(f"New user ID: {new_user.id}") # Debugging
-
-        access_token = create_access_token(identity=new_user.id) # Generate token for new user
-
-        return jsonify(access_token=access_token), 201
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user) # Refresh user to get its ID
+    print(f"New user ID: {new_user.id}") # Debugging
+    access_token = create_access_token(identity=new_user.id) # Generate token for new user
+    return jsonify(access_token=access_token), 201
 
 
 
