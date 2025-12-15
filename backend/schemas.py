@@ -18,3 +18,8 @@ class EventSchema(Schema):
  result = fields.Str()
  zone = fields.Int()
  metadata = fields.Str(attribute="meta_data")
+
+class CustomButtonSchema(Schema):
+  id = fields.Int()
+  name = fields.Str()
+  color = fields.Str()

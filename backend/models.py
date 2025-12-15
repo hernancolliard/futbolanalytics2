@@ -32,3 +32,9 @@ class Event(Base):
   meta_data = Column("metadata", Text)
   created_at = Column(DateTime(timezone=True), server_default=func.now())
   match = relationship('Match', back_populates='events')
+
+class CustomButton(Base):
+  __tablename__ = 'custom_buttons'
+  id = Column(Integer, primary_key=True, index=True)
+  name = Column(String(80), nullable=False)
+  color = Column(String(20), default='#FFFFFF')

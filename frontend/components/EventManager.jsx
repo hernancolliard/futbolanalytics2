@@ -1,8 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import api from '../src/services/api';
 
 const EventManager = ({ onAddEvent, players, zones, videoTime, selectedZone, onZoneChange }) => {
   const [selectedPlayer, setSelectedPlayer] = useState(players[0]);
   const [successMessage, setSuccessMessage] = useState('');
+  const [buttons, setButtons] = useState([]);
+
+  useEffect(() => {
+    fetchButtons();
+  }, []);
+
+  const fetchButtons = async () => {
+    try {
+      const response = await api.getButtons();
+      setButtons(response.data);
+    } catch (error) {
+      console.error("Error fetching buttons:", error);
+    }
+  };
 
   const formatTime = (timeInSeconds) => {
     const minutes = Math.floor(timeInSeconds / 60).toString().padStart(2, '0');
@@ -10,12 +25,12 @@ const EventManager = ({ onAddEvent, players, zones, videoTime, selectedZone, onZ
     return `${minutes}:${seconds}`;
   };
 
-  const handleEventClick = (action, result) => {
+  const handleEventClick = (buttonName) => {
     const newEvent = {
       time: formatTime(videoTime),
       player: selectedPlayer,
-      action,
-      result,
+      action: buttonName,
+      result: '', // This will be handled by descriptor matrices later
       zone: selectedZone,
     };
     onAddEvent(newEvent);
@@ -30,14 +45,15 @@ const EventManager = ({ onAddEvent, players, zones, videoTime, selectedZone, onZ
       <h2>🏷️ EVENTOS</h2>
       {successMessage && <div className="success-message">{successMessage}</div>}
       <div className="button-group">
-        <button onClick={() => handleEventClick('Pase', '✅')}>Pase ✅</button>
-        <button onClick={() => handleEventClick('Pase', '❌')}>Pase ❌</button>
-        <button onClick={() => handleEventClick('Tiro', '✅')}>Tiro ✅</button>
-        <button onClick={() => handleEventClick('Tiro', '❌')}>Tiro ❌</button>
-        <button onClick={() => handleEventClick('Gol', '✅')}>Gol</button>
-        <button onClick={() => handleEventClick('Falta', '❌')}>Falta</button>
-        <button onClick={() => handleEventClick('Duelo', '✅')}>Duelo ✅</button>
-        <button onClick={() => handleEventClick('Duelo', '❌')}>Duelo ❌</button>
+        {buttons.map(button => (
+          <button 
+            key={button.id}
+            style={{ backgroundColor: button.color }}
+            onClick={() => handleEventClick(button.name)}
+          >
+            {button.name}
+          </button>
+        ))}
       </div>
       <div className="dropdown-group">
         <select value={selectedPlayer} onChange={(e) => setSelectedPlayer(e.target.value)}>

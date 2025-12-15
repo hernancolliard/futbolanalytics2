@@ -35,6 +35,22 @@ export const deleteMatch = (matchId) => {
     return apiClient.delete(`/matches/${matchId}`);
 };
 
+export const getButtons = () => {
+    return apiClient.get('/buttons');
+};
+
+export const createButton = (data) => {
+    return apiClient.post('/buttons', data);
+};
+
+export const updateButton = (buttonId, data) => {
+    return apiClient.put(`/buttons/${buttonId}`, data);
+};
+
+export const deleteButton = (buttonId) => {
+    return apiClient.delete(`/buttons/${buttonId}`);
+};
+
 export const getEvents = (matchId) => {
     return apiClient.get(`/matches/${matchId}/events`);
 };
@@ -64,6 +80,10 @@ export default {
     createMatch,
     updateMatch,
     deleteMatch,
+    getButtons,
+    createButton,
+    updateButton,
+    deleteButton,
     getPlayers,
     getEvents,
     createEvent,

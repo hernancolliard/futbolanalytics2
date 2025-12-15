@@ -1,7 +1,7 @@
 from flask_jwt_extended import create_access_token, jwt_required
 from werkzeug.security import generate_password_hash, check_password_hash
-from schemas import MatchSchema, EventSchema, UserSchema
-from models import Match, Event, User
+from schemas import MatchSchema, EventSchema, UserSchema, CustomButtonSchema
+from models import Match, Event, User, CustomButton
 from database import get_db
 from sqlalchemy.orm import Session
 from werkzeug.utils import secure_filename
@@ -202,3 +202,91 @@ def login():
         return jsonify(access_token=access_token)
 
     return jsonify({"message": "Invalid credentials"}), 401
+
+
+
+@bp.route('/buttons', methods=['GET'])
+
+@jwt_required()
+
+def list_buttons():
+
+    db = next(get_db())
+
+    buttons = db.query(CustomButton).all()
+
+    return jsonify(CustomButtonSchema(many=True).dump(buttons))
+
+
+
+@bp.route('/buttons', methods=['POST'])
+
+@jwt_required()
+
+def create_button():
+
+    db = next(get_db())
+
+    data = request.get_json()
+
+    button = CustomButton(name=data['name'], color=data.get('color'))
+
+    db.add(button)
+
+    db.commit()
+
+    db.refresh(button)
+
+    return jsonify(CustomButtonSchema().dump(button)), 201
+
+
+
+@bp.route('/buttons/<int:button_id>', methods=['PUT'])
+
+@jwt_required()
+
+def update_button(button_id):
+
+    db = next(get_db())
+
+    button = db.query(CustomButton).get(button_id)
+
+    if not button:
+
+        return jsonify({"error": "Button not found"}), 404
+
+    data = request.get_json()
+
+    button.name = data.get('name', button.name)
+
+    button.color = data.get('color', button.color)
+
+    db.commit()
+
+    db.refresh(button)
+
+    return jsonify(CustomButtonSchema().dump(button))
+
+
+
+@bp.route('/buttons/<int:button_id>', methods=['DELETE'])
+
+@jwt_required()
+
+def delete_button(button_id):
+
+    db = next(get_db())
+
+    button = db.query(CustomButton).get(button_id)
+
+    if not button:
+
+        return jsonify({"error": "Button not found"}), 404
+
+    db.delete(button)
+
+    db.commit()
+
+    return jsonify({"message": "Button deleted successfully"}), 200
+
+

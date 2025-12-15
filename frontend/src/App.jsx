@@ -4,6 +4,7 @@ import MatchSelector from '../components/MatchSelector';
 import Login from '../components/Login';
 import Register from '../components/Register';
 import AdminPanel from '../components/AdminPanel';
+import ButtonEditor from '../components/ButtonEditor';
 import { useAuth } from './context/AuthContext';
 import api from './services/api';
 
@@ -12,7 +13,7 @@ function App() {
   const [selectedMatchId, setSelectedMatchId] = useState(null);
   const { token, user, login, logout, register } = useAuth();
   const [showLogin, setShowLogin] = useState(true);
-  const [showAdminPanel, setShowAdminPanel] = useState(false);
+  const [currentView, setCurrentView] = useState('match_analysis');
 
   useEffect(() => {
     if (token) {
@@ -52,13 +53,16 @@ function App() {
     <div className="App">
       <button onClick={logout}>Logout</button>
       {user?.sub.role === 'admin' && (
-        <button onClick={() => setShowAdminPanel(!showAdminPanel)}>
-          {showAdminPanel ? 'Close Admin Panel' : 'Open Admin Panel'}
-        </button>
+        <div>
+          <button onClick={() => setCurrentView('match_analysis')}>Análisis de Partidos</button>
+          <button onClick={() => setCurrentView('admin_panel')}>Admin Partidos</button>
+          <button onClick={() => setCurrentView('button_editor')}>Admin Botones</button>
+        </div>
       )}
-      {showAdminPanel ? (
-        <AdminPanel />
-      ) : (
+
+      {currentView === 'admin_panel' && <AdminPanel />}
+      {currentView === 'button_editor' && <ButtonEditor />}
+      {currentView === 'match_analysis' && (
         <>
           <MatchSelector matches={matches} onSelectMatch={handleSelectMatch} onMatchesUpdated={fetchMatches} />
           {selectedMatchId && <MatchAnalysis matchId={selectedMatchId} />}
