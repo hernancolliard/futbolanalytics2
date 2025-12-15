@@ -15,11 +15,6 @@ const MatchAnalysis = ({ matchId }) => {
   const [players, setPlayers] = useState([]);
   const [videoDuration, setVideoDuration] = useState(0);
 
-  const handleDurationChange = (duration) => {
-    setVideoDuration(duration);
-  };
-
-
   useEffect(() => {
     const fetchData = async () => {
       try {
