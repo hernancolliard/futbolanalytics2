@@ -182,25 +182,77 @@ def register():
 
     db.commit()
 
-    return jsonify({"message": "User created successfully"}), 201
+    db.refresh(new_user) # Refresh user to get its ID
+
+    access_token = create_access_token(identity=new_user.id) # Generate token for new user
+
+    return jsonify(access_token=access_token), 201
 
 
 
 @bp.route('/login', methods=['POST'])
 
+
+
 def login():
+
+
 
     db = next(get_db())
 
+
+
     data = request.get_json()
+
+
+
+    print(f"Attempting login for email: {data['email']}") # Debugging
+
+
 
     user = db.query(User).filter_by(email=data['email']).first()
 
-    if user and check_password_hash(user.password_hash, data['password']):
 
-        access_token = create_access_token(identity=user.id)
 
-        return jsonify(access_token=access_token)
+    if user:
+
+
+
+        print(f"User found: {user.email}") # Debugging
+
+
+
+        if check_password_hash(user.password_hash, data['password']):
+
+
+
+            print("Password check successful.") # Debugging
+
+
+
+            access_token = create_access_token(identity=user.id)
+
+
+
+            return jsonify(access_token=access_token)
+
+
+
+        else:
+
+
+
+            print("Password check failed.") # Debugging
+
+
+
+    else:
+
+
+
+        print("User not found.") # Debugging
+
+
 
     return jsonify({"message": "Invalid credentials"}), 401
 
