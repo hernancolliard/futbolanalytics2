@@ -16,21 +16,29 @@ export const AuthProvider = ({ children }) => {
     }, [token]);
 
     const login = async (credentials) => {
-        const response = await api.login(credentials);
-        const { access_token } = response.data;
-        localStorage.setItem('token', access_token);
-        setToken(access_token);
-        const decoded = jwtDecode(access_token);
-        setUser(decoded);
+        try {
+            const response = await api.login(credentials);
+            const { access_token } = response.data;
+            console.log("Access Token received:", access_token); // Debugging line
+            localStorage.setItem('token', access_token);
+            setToken(access_token);
+            const decoded = jwtDecode(access_token);
+            setUser(decoded);
+        } catch (error) {
+            console.error("Login failed:", error);
+            throw error; // Re-throw to propagate the error for UI feedback
+        }
     };
 
     const register = async (userData) => {
         try {
             const response = await api.register(userData);
             // Assuming successful registration implies user can log in immediately
+            // The login function now handles its own errors
             await login({ email: userData.email, password: userData.password });
         } catch (error) {
             console.error("Registration failed:", error);
+            throw error; // Re-throw to propagate the error for UI feedback
             // Optionally, set an error state to display to the user
         }
     };
