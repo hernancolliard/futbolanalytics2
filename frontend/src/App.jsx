@@ -7,6 +7,7 @@ import AdminPanel from '../components/AdminPanel';
 import ButtonEditor from '../components/ButtonEditor';
 import { useAuth } from './context/AuthContext';
 import api from './services/api';
+import '../components/AuthForms.css'; // Import the styling
 
 function App() {
   const [matches, setMatches] = useState([]);
@@ -36,13 +37,13 @@ function App() {
 
   if (!token) {
     return (
-      <div>
+      <div className="auth-container">
         {showLogin ? (
           <Login onLogin={login} />
         ) : (
           <Register onRegister={register} />
         )}
-        <button onClick={() => setShowLogin(!showLogin)}>
+        <button onClick={() => setShowLogin(!showLogin)} className="toggle-auth-button">
           {showLogin ? 'Need to register?' : 'Already have an account?'}
         </button>
       </div>

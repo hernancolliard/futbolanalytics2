@@ -25,7 +25,14 @@ export const AuthProvider = ({ children }) => {
     };
 
     const register = async (userData) => {
-        await api.register(userData);
+        try {
+            const response = await api.register(userData);
+            // Assuming successful registration implies user can log in immediately
+            await login({ email: userData.email, password: userData.password });
+        } catch (error) {
+            console.error("Registration failed:", error);
+            // Optionally, set an error state to display to the user
+        }
     };
 
     const logout = () => {

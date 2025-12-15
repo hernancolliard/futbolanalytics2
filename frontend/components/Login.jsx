@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import './AuthForms.css'; // Import the styling
 
 const Login = ({ onLogin }) => {
     const [email, setEmail] = useState('');
@@ -10,7 +11,7 @@ const Login = ({ onLogin }) => {
     };
 
     return (
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className="auth-form">
             <h2>Login</h2>
             <input 
                 type="email" 

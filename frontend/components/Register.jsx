@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import './AuthForms.css'; // Import the styling
 
 const Register = ({ onRegister }) => {
     const [name, setName] = useState('');
@@ -11,7 +12,7 @@ const Register = ({ onRegister }) => {
     };
 
     return (
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className="auth-form">
             <h2>Register</h2>
             <input 
                 type="text" 
