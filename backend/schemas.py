@@ -16,7 +16,8 @@ class EventSchema(Schema):
  player = fields.Str()
  action = fields.Str()
  result = fields.Str()
- zone = fields.Int()
+ x = fields.Int()
+ y = fields.Int()
  metadata = fields.Str(attribute="meta_data")
 
 class CustomButtonSchema(Schema):

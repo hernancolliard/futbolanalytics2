@@ -34,7 +34,7 @@ const EventsTable = ({ events, onDeleteEvent, onUpdateEvent }) => {
             <th>Jugador</th>
             <th>Acción</th>
             <th>Resultado</th>
-            <th>Zona</th>
+            <th>Coords (X,Y)</th>
             <th>✏️</th>
             <th>🗑️</th>
           </tr>
@@ -48,7 +48,10 @@ const EventsTable = ({ events, onDeleteEvent, onUpdateEvent }) => {
                   <td><input type="text" value={editedEvent.player} onChange={(e) => handleChange(e, 'player')} /></td>
                   <td><input type="text" value={editedEvent.action} onChange={(e) => handleChange(e, 'action')} /></td>
                   <td><input type="text" value={editedEvent.result} onChange={(e) => handleChange(e, 'result')} /></td>
-                  <td><input type="number" value={editedEvent.zone} onChange={(e) => handleChange(e, 'zone')} /></td>
+                  <td>
+                    <input type="number" value={editedEvent.x} onChange={(e) => handleChange(e, 'x')} className="coords-input" />
+                    <input type="number" value={editedEvent.y} onChange={(e) => handleChange(e, 'y')} className="coords-input" />
+                  </td>
                   <td className="action-icons"><button onClick={handleSave}>💾</button></td>
                   <td className="action-icons"><button onClick={handleCancel}>❌</button></td>
                 </>
@@ -58,7 +61,7 @@ const EventsTable = ({ events, onDeleteEvent, onUpdateEvent }) => {
                   <td>{event.player}</td>
                   <td>{event.action}</td>
                   <td>{event.result}</td>
-                  <td>{event.zone}</td>
+                  <td>{event.x},{event.y}</td>
                   <td className="action-icons"><button onClick={() => handleEdit(event, index)}>✏️</button></td>
                   <td className="action-icons"><button onClick={() => onDeleteEvent(event.id)}>🗑️</button></td>
                 </>

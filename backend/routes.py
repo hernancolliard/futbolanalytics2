@@ -113,7 +113,8 @@ def add_event(match_id):
       player=data.get('player'),
       action=data.get('action'),
       result=data.get('result'),
-      zone=data.get('zone'),
+      x=data.get('x'),
+      y=data.get('y'),
       meta_data=data.get('metadata')
   )
   db.add(ev)

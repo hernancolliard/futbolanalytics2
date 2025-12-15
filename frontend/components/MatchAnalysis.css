@@ -163,3 +163,9 @@ button:hover {
   border-radius: .25rem;
   text-align: center;
 }
+
+/* Coordinates input styling */
+.coords-input {
+  width: 45px; /* Adjust as needed */
+  margin-right: 5px;
+}

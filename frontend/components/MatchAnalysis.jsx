@@ -3,7 +3,6 @@ import './MatchAnalysis.css';
 import MatchHeader from './MatchHeader';
 import VideoPlayer from './VideoPlayer';
 import EventManager from './EventManager';
-import FieldZones from './FieldZones';
 import MatchTimeline from './MatchTimeline';
 import EventsTable from './EventsTable';
 import DrawingTools from './DrawingTools';
@@ -12,7 +11,6 @@ import api from '../src/services/api';
 const MatchAnalysis = ({ matchId }) => {
   const [events, setEvents] = useState([]);
   const [videoTime, setVideoTime] = useState(0);
-  const [selectedZone, setSelectedZone] = useState(null);
   const [players, setPlayers] = useState([]);
   const [videoDuration, setVideoDuration] = useState(0);
   const [drawingTool, setDrawingTool] = useState('pen');
@@ -33,15 +31,13 @@ const MatchAnalysis = ({ matchId }) => {
         // Set some default data if the API fails
         setPlayers(['Pérez', 'Gómez', 'Rodríguez', 'Sánchez']);
         setEvents([
-          { time: '12:33', player: 'Pérez', action: 'Pase', result: '✅', zone: 2 },
-          { time: '13:10', player: 'Gómez', action: 'Tiro', result: '❌', zone: 5 },
+          { time: '12:33', player: 'Pérez', action: 'Pase', result: '✅', x: 50, y: 50 }, // Use x, y instead of zone
+          { time: '13:10', player: 'Gómez', action: 'Tiro', result: '❌', x: 80, y: 20 }, // Use x, y instead of zone
         ]);
       }
     };
     fetchData();
   }, [matchId]);
-
-  const zones = [1, 2, 3, 4, 5, 6];
 
   const addEvent = async (event) => {
     try {
@@ -84,21 +80,11 @@ const MatchAnalysis = ({ matchId }) => {
     setVideoDuration(duration);
   };
 
-  const handleZoneSelect = (zone) => {
-    setSelectedZone(zone);
-  };
-
   const handleTimelineClick = (time) => {
     videoPlayerRef.current.seek(time);
   };
 
-  const filteredEvents = selectedZone
-    ? events.filter(event => event.zone === selectedZone)
-    : events;
-
-  const handleShowAllEvents = () => {
-    setSelectedZone(null);
-  };
+  const filteredEvents = events; // No longer filtering by zone here
 
   return (
     <div className="match-analysis-container">
@@ -123,19 +109,10 @@ const MatchAnalysis = ({ matchId }) => {
           <EventManager 
             onAddEvent={addEvent} 
             players={players} 
-            zones={zones} 
             videoTime={videoTime}
-            selectedZone={selectedZone}
-            onZoneChange={handleZoneSelect}
           />
         </div>
       </div>
-      <FieldZones onZoneSelect={handleZoneSelect} selectedZone={selectedZone} />
-      {selectedZone && (
-        <button onClick={handleShowAllEvents} className="show-all-btn">
-          Mostrar Todos los Eventos
-        </button>
-      )}
       <MatchTimeline 
         events={filteredEvents} 
         videoTime={videoTime} 

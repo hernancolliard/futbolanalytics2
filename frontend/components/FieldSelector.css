@@ -1,0 +1,51 @@
+.field-selector-container {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #313338; /* Darker background for contrast */
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  color: #e0e0e0; /* Light text for readability */
+}
+
+.field-selector-container h2 {
+  color: #a0c4ff; /* Light blue for headings */
+  margin-bottom: 15px;
+  font-size: 1.2em;
+  text-align: center;
+}
+
+.field-image-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 600px; /* Adjust as needed */
+  margin: 0 auto;
+  border: 1px solid #444;
+  border-radius: 5px;
+  overflow: hidden; /* Ensure marker stays within bounds */
+}
+
+.soccer-field-image {
+  width: 100%;
+  height: auto;
+  display: block;
+  cursor: crosshair; /* Indicate clickable area */
+}
+
+.coordinate-marker {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  background-color: #ff4d4d; /* Red marker */
+  border-radius: 50%;
+  border: 2px solid #fff;
+  transform: translate(-50%, -50%); /* Center the marker on the click point */
+  pointer-events: none; /* Allows clicks to pass through to the image */
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+}
+
+.selected-coords {
+  text-align: center;
+  margin-top: 15px;
+  font-size: 1em;
+  color: #bbb;
+}

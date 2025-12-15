@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import api from '../src/services/api';
+import FieldSelector from './FieldSelector'; // Import the new component
 
-const EventManager = ({ onAddEvent, players, zones, videoTime, selectedZone, onZoneChange }) => {
+const EventManager = ({ onAddEvent, players, videoTime }) => {
   const [selectedPlayer, setSelectedPlayer] = useState(players[0]);
+  const [selectedCoordinates, setSelectedCoordinates] = useState({ x: null, y: null });
   const [successMessage, setSuccessMessage] = useState('');
   const [buttons, setButtons] = useState([]);
 
@@ -25,13 +27,23 @@ const EventManager = ({ onAddEvent, players, zones, videoTime, selectedZone, onZ
     return `${minutes}:${seconds}`;
   };
 
+  const handleCoordinatesSelect = (coords) => {
+    setSelectedCoordinates(coords);
+  };
+
   const handleEventClick = (buttonName) => {
+    if (selectedCoordinates.x === null || selectedCoordinates.y === null) {
+      alert("Por favor, selecciona una posición en el campo.");
+      return;
+    }
+
     const newEvent = {
       time: formatTime(videoTime),
       player: selectedPlayer,
       action: buttonName,
       result: '', // This will be handled by descriptor matrices later
-      zone: selectedZone,
+      x: selectedCoordinates.x,
+      y: selectedCoordinates.y,
     };
     onAddEvent(newEvent);
     setSuccessMessage('¡Evento creado con éxito!');
@@ -62,13 +74,8 @@ const EventManager = ({ onAddEvent, players, zones, videoTime, selectedZone, onZ
             <option key={player} value={player}>{player}</option>
           ))}
         </select>
-        <select value={selectedZone} onChange={(e) => onZoneChange(e.target.value)}>
-          <option disabled>▼ Zona</option>
-          {zones.map(zone => (
-            <option key={zone} value={zone}>{zone}</option>
-          ))}
-        </select>
       </div>
+      <FieldSelector onCoordinatesSelect={handleCoordinatesSelect} selectedCoordinates={selectedCoordinates} />
     </div>
   );
 };
