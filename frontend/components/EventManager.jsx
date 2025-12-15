@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 
 const EventManager = ({ onAddEvent, players, zones, videoTime, selectedZone, onZoneChange }) => {
   const [selectedPlayer, setSelectedPlayer] = useState(players[0]);
+  const [successMessage, setSuccessMessage] = useState('');
 
   const formatTime = (timeInSeconds) => {
     const minutes = Math.floor(timeInSeconds / 60).toString().padStart(2, '0');
@@ -18,11 +19,16 @@ const EventManager = ({ onAddEvent, players, zones, videoTime, selectedZone, onZ
       zone: selectedZone,
     };
     onAddEvent(newEvent);
+    setSuccessMessage('¡Evento creado con éxito!');
+    setTimeout(() => {
+      setSuccessMessage('');
+    }, 3000);
   };
 
   return (
     <div className="event-manager">
       <h2>🏷️ EVENTOS</h2>
+      {successMessage && <div className="success-message">{successMessage}</div>}
       <div className="button-group">
         <button onClick={() => handleEventClick('Pase', '✅')}>Pase ✅</button>
         <button onClick={() => handleEventClick('Pase', '❌')}>Pase ❌</button>
