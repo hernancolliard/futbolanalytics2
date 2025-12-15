@@ -178,9 +178,9 @@ def register():
 
     )
 
-    db.add(new_user)
+        db.add(new_user)
 
-    db.commit()
+        db.commit()
 
         db.refresh(new_user) # Refresh user to get its ID
 
