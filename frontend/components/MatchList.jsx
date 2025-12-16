@@ -29,6 +29,7 @@ export default function MatchList({ onSelectMatch }) {
 
   return (
     <div>
+      <h1>MATCHLIST COMPONENT</h1>
       <h2>Matches</h2>
       {matches.length === 0 && <p>No matches yet</p>}
       <ul style={{ listStyle: 'none', padding: 0 }}>
