@@ -156,22 +156,42 @@ def list_matches():
         ).order_by(models.Match.date.desc()).all()
         logging.info(f"Successfully fetched {len(matches)} matches from the database.")
         
-        result = []
+        result_list = []
         for m in matches:
-            try:
-                result.append(schemas.Match.from_orm(m).dict())
-            except Exception as e:
-                logging.error(f"Error processing match with ID {m.id}: {str(e)}")
-                # Depending on desired behavior, you might want to skip this record
-                # or raise the exception to fail the whole request.
-                # For now, we'll just log it and continue.
-                continue
+            match_dict = {
+                "id": m.id,
+                "title": m.title,
+                "date": m.date.isoformat() if m.date else None,
+                "venue": m.venue,
+                "video_path": m.video_path,
+                "notes": m.notes,
+                "home_team_id": m.home_team_id,
+                "away_team_id": m.away_team_id,
+                "home_team": None,
+                "away_team": None
+            }
+            if m.home_team:
+                match_dict["home_team"] = {
+                    "id": m.home_team.id,
+                    "name": m.home_team.name,
+                    "coach": m.home_team.coach,
+                    "logo_url": m.home_team.logo_url
+                }
+            if m.away_team:
+                match_dict["away_team"] = {
+                    "id": m.away_team.id,
+                    "name": m.away_team.name,
+                    "coach": m.away_team.coach,
+                    "logo_url": m.away_team.logo_url
+                }
+            result_list.append(match_dict)
         
         logging.info("Successfully processed all matches.")
-        return jsonify(result)
+        return jsonify(result_list)
     except Exception as e:
+        import traceback
         logging.error(f"A critical error occurred in list_matches: {str(e)}")
-        # This will result in a 500 error on the client side
+        logging.error(traceback.format_exc())
         return jsonify({"error": "An internal server error occurred."}), 500
     finally:
         db.close()
