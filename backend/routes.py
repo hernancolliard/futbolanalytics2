@@ -133,7 +133,7 @@ def create_match():
         db.close()
 
 @bp.route('/matches', methods=['GET'])
-@jwt_required()
+# @jwt_required()
 def list_matches():
     db = get_db_session()
     try:

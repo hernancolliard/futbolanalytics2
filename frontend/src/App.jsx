@@ -17,10 +17,8 @@ function App() {
   const [currentView, setCurrentView] = useState('match_analysis');
 
   useEffect(() => {
-    if (token) {
-      fetchMatches();
-    }
-  }, [token]);
+    fetchMatches();
+  }, []);
 
   const fetchMatches = async () => {
     try {
@@ -35,7 +33,7 @@ function App() {
     setSelectedMatchId(matchId);
   };
 
-  if (!token) {
+  /* if (!token) {
     return (
       <div className="auth-container">
         {showLogin ? (
@@ -48,7 +46,7 @@ function App() {
         </button>
       </div>
     );
-  }
+  } */
 
   return (
     <div className="App">
