@@ -169,3 +169,37 @@ button:hover {
   width: 45px; /* Adjust as needed */
   margin-right: 5px;
 }
+
+.playlist-controls {
+  background-color: #1c2533;
+  color: #e0e0e0;
+  padding: 10px;
+  border-radius: 4px;
+  margin-top: 10px;
+  text-align: center;
+}
+
+.playlist-controls p {
+  margin: 0 0 10px 0;
+  font-weight: bold;
+}
+
+.playlist-controls button {
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  margin: 0 5px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.playlist-controls button:hover {
+  background-color: #2563eb;
+}
+
+.playlist-controls button:disabled {
+  background-color: #555;
+  cursor: not-allowed;
+}

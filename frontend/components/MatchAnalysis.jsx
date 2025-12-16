@@ -5,6 +5,7 @@ import VideoPlayer from './VideoPlayer';
 import EventManager from './EventManager';
 import MatchTimeline from './MatchTimeline';
 import EventsTable from './EventsTable';
+import DataMatrix from './DataMatrix'; // Importar DataMatrix
 import DrawingTools from './DrawingTools';
 import api from '../src/services/api';
 
@@ -16,7 +17,8 @@ const MatchAnalysis = ({ matchId }) => {
   const [drawingTool, setDrawingTool] = useState('pen');
   const [drawingColor, setDrawingColor] = useState('#ff0000');
   const [drawingSize, setDrawingSize] = useState(5);
-  
+  const [playlist, setPlaylist] = useState(null); // Estado para la lista de reproducción temporal
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -70,6 +72,20 @@ const MatchAnalysis = ({ matchId }) => {
     }
   };
 
+  // Manejador para el clic en la celda de la matriz
+  const handleMatrixCellClick = (player, action) => {
+    const filtered = events.filter(event => event.player === player && event.event_type === action);
+    setPlaylist(filtered);
+    // Opcional: podrías querer saltar al primer evento de la lista de reproducción creada
+    if (filtered.length > 0) {
+      handleTimelineClick(filtered[0].timestamp);
+    }
+  };
+
+  const handlePlaylistClear = () => {
+    setPlaylist(null);
+  };
+
   const videoPlayerRef = useRef(null);
 
   const handleTimeUpdate = (time) => {
@@ -98,6 +114,8 @@ const MatchAnalysis = ({ matchId }) => {
             tool={drawingTool}
             color={drawingColor}
             size={drawingSize}
+            playlist={playlist} // Pasar la lista de reproducción al reproductor
+            onPlaylistClear={handlePlaylistClear} // Pasar el manejador para limpiar
           />
           <DrawingTools
             onToolChange={setDrawingTool}
@@ -119,6 +137,7 @@ const MatchAnalysis = ({ matchId }) => {
         videoDuration={videoDuration} 
         onTimelineClick={handleTimelineClick} 
       />
+      <DataMatrix events={events} onCellClick={handleMatrixCellClick} />
       <EventsTable events={filteredEvents} onDeleteEvent={deleteEvent} onUpdateEvent={updateEvent} />
     </div>
   );
