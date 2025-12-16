@@ -5,6 +5,10 @@ const VideoPlayer = forwardRef(({ onTimeUpdate, onDurationChange, tool, color, s
   const videoRef = useRef(null);
   const [size, setSize] = useState({ width: 0, height: 0 });
   const [currentClipIndex, setCurrentClipIndex] = useState(0);
+  const FRAME_RATE = 30; // Assuming a standard frame rate
+  const CLIP_DURATION = 5; // Default duration for a clip in seconds
+
+  const videoTime = videoRef.current ? videoRef.current.currentTime : 0;
 
   useEffect(() => {
     const video = videoRef.current;
@@ -22,14 +26,14 @@ const VideoPlayer = forwardRef(({ onTimeUpdate, onDurationChange, tool, color, s
     }
   }, []);
 
-  // Effect to handle playlist changes
+  // Effect to handle playlist changes and start auto-playback
   useEffect(() => {
     if (playlist && playlist.length > 0) {
       setCurrentClipIndex(0);
       const firstClipTime = playlist[0].timestamp;
       if (videoRef.current && !isNaN(firstClipTime)) {
         videoRef.current.currentTime = firstClipTime;
-        videoRef.current.pause();
+        videoRef.current.play(); // Start playing automatically
       }
     }
   }, [playlist]);
@@ -39,11 +43,40 @@ const VideoPlayer = forwardRef(({ onTimeUpdate, onDurationChange, tool, color, s
     if (playlist && playlist.length > 0 && videoRef.current) {
       const clipTime = playlist[currentClipIndex].timestamp;
       if (!isNaN(clipTime)) {
-        videoRef.current.currentTime = clipTime;
-        videoRef.current.pause();
+        // Only seek if the video is not already close to the target time
+        if (Math.abs(videoRef.current.currentTime - clipTime) > 1) {
+            videoRef.current.currentTime = clipTime;
+        }
+        if (videoRef.current.paused) {
+            videoRef.current.play();
+        }
       }
     }
   }, [currentClipIndex, playlist]);
+  
+  // Effect for auto-advancing based on time
+  useEffect(() => {
+    let interval;
+    if (playlist && !videoRef.current.paused) {
+      interval = setInterval(() => {
+        const video = videoRef.current;
+        if (!video) return;
+
+        const currentClip = playlist[currentClipIndex];
+        const clipEndTime = currentClip.timestamp + CLIP_DURATION;
+        
+        if (video.currentTime >= clipEndTime) {
+          if (currentClipIndex < playlist.length - 1) {
+            setCurrentClipIndex(prevIndex => prevIndex + 1);
+          } else {
+            video.pause(); // Pause at the end of the last clip
+            clearInterval(interval);
+          }
+        }
+      }, 250); // Check every 250ms for responsiveness
+    }
+    return () => clearInterval(interval);
+  }, [playlist, currentClipIndex, videoRef.current?.paused]);
 
 
   useImperativeHandle(ref, () => ({
@@ -70,6 +103,20 @@ const VideoPlayer = forwardRef(({ onTimeUpdate, onDurationChange, tool, color, s
 
   const handlePlaybackRate = (rate) => {
     videoRef.current.playbackRate = rate;
+  };
+
+  const handleFrameBackward = () => {
+    if (!videoRef.current.paused) {
+      videoRef.current.pause();
+    }
+    videoRef.current.currentTime -= (1 / FRAME_RATE);
+  };
+
+  const handleFrameForward = () => {
+    if (!videoRef.current.paused) {
+      videoRef.current.pause();
+    }
+    videoRef.current.currentTime += (1 / FRAME_RATE);
   };
 
   const handleNextClip = () => {
@@ -117,9 +164,16 @@ const VideoPlayer = forwardRef(({ onTimeUpdate, onDurationChange, tool, color, s
         <button onClick={handlePlayPause}>⏯</button>
         <button onClick={handleRewind}>⏪</button>
         <button onClick={handleFastForward}>⏩</button>
+        <button onClick={handleFrameBackward}>|◀</button>
+        <button onClick={handleFrameForward}>▶|</button>
+      </div>
+      <div className="button-group" style={{marginTop: '0.5rem'}}>
+        <button onClick={() => handlePlaybackRate(0.25)}>x0.25</button>
         <button onClick={() => handlePlaybackRate(0.5)}>x0.5</button>
+        <button onClick={() => handlePlaybackRate(0.75)}>x0.75</button>
         <button onClick={() => handlePlaybackRate(1)}>x1</button>
         <button onClick={() => handlePlaybackRate(1.5)}>x1.5</button>
+        <button onClick={() => handlePlaybackRate(2)}>x2</button>
       </div>
     </div>
   );
