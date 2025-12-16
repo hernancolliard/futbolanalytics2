@@ -132,18 +132,52 @@ def create_match():
     finally:
         db.close()
 
+import logging
+
+# ... (rest of the imports)
+
+bp = Blueprint('api', __name__)
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+
+# ... (rest of the code)
+
 @bp.route('/matches', methods=['GET'])
 # @jwt_required()
 def list_matches():
+    logging.info("Attempting to list matches.")
     db = get_db_session()
     try:
+        logging.info("Querying database for matches.")
         matches = db.query(models.Match).options(
             joinedload(models.Match.home_team),
             joinedload(models.Match.away_team)
         ).order_by(models.Match.date.desc()).all()
-        return jsonify([schemas.Match.from_orm(m).dict() for m in matches])
+        logging.info(f"Successfully fetched {len(matches)} matches from the database.")
+        
+        result = []
+        for m in matches:
+            try:
+                result.append(schemas.Match.from_orm(m).dict())
+            except Exception as e:
+                logging.error(f"Error processing match with ID {m.id}: {str(e)}")
+                # Depending on desired behavior, you might want to skip this record
+                # or raise the exception to fail the whole request.
+                # For now, we'll just log it and continue.
+                continue
+        
+        logging.info("Successfully processed all matches.")
+        return jsonify(result)
+    except Exception as e:
+        logging.error(f"A critical error occurred in list_matches: {str(e)}")
+        # This will result in a 500 error on the client side
+        return jsonify({"error": "An internal server error occurred."}), 500
     finally:
         db.close()
+
+# ... (rest of the code)
+
 
 # Lineup Routes
 @bp.route('/matches/<int:match_id>/lineup', methods=['POST'])
