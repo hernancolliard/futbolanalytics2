@@ -1,13 +1,13 @@
--- Eliminar tablas existentes en orden inverso para evitar problemas de dependencia
-DROP TABLE IF EXISTS events;
-DROP TABLE IF EXISTS match_lineups;
-DROP TABLE IF EXISTS matches;
-DROP TABLE IF EXISTS players;
-DROP TABLE IF EXISTS teams;
-DROP TABLE IF EXISTS users;
+-- Eliminar tablas existentes en orden inverso para evitar problemas de dependencia (Comentado para seguridad)
+-- DROP TABLE IF EXISTS events;
+-- DROP TABLE IF EXISTS match_lineups;
+-- DROP TABLE IF EXISTS matches;
+-- DROP TABLE IF EXISTS players;
+-- DROP TABLE IF EXISTS teams;
+-- DROP TABLE IF EXISTS users;
 
 -- Tabla para los usuarios del sistema
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
     email VARCHAR(255) UNIQUE NOT NULL,
     name VARCHAR(120),
@@ -17,7 +17,7 @@ CREATE TABLE users (
 );
 
 -- Tabla para los equipos
-CREATE TABLE teams (
+CREATE TABLE IF NOT EXISTS teams (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) UNIQUE NOT NULL,
     coach VARCHAR(255),
@@ -26,7 +26,7 @@ CREATE TABLE teams (
 );
 
 -- Tabla para los jugadores, cada uno pertenece a un equipo
-CREATE TABLE players (
+CREATE TABLE IF NOT EXISTS players (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     team_id INTEGER REFERENCES teams(id) ON DELETE SET NULL, -- Si se borra un equipo, el jugador queda libre
@@ -37,7 +37,7 @@ CREATE TABLE players (
 );
 
 -- Tabla para los partidos
-CREATE TABLE matches (
+CREATE TABLE IF NOT EXISTS matches (
     id SERIAL PRIMARY KEY,
     title VARCHAR(255),
     date TIMESTAMPTZ,
@@ -50,7 +50,7 @@ CREATE TABLE matches (
 );
 
 -- Tabla para las alineaciones de cada partido
-CREATE TABLE match_lineups (
+CREATE TABLE IF NOT EXISTS match_lineups (
     id SERIAL PRIMARY KEY,
     match_id INTEGER NOT NULL REFERENCES matches(id) ON DELETE CASCADE,
     player_id INTEGER NOT NULL REFERENCES players(id) ON DELETE CASCADE,
@@ -60,7 +60,7 @@ CREATE TABLE match_lineups (
 );
 
 -- Tabla para los eventos, ahora vinculados a un jugador
-CREATE TABLE events (
+CREATE TABLE IF NOT EXISTS events (
     id SERIAL PRIMARY KEY,
     match_id INTEGER REFERENCES matches(id) ON DELETE CASCADE,
     player_id INTEGER REFERENCES players(id) ON DELETE CASCADE, -- Vinculado al jugador
