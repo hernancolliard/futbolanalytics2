@@ -43,9 +43,9 @@ function App() {
       <button onClick={logout}>Logout</button>
       {user?.sub.role === 'admin' && (
         <div>
-          <button onClick={() => setCurrentView('admin_panel')}>Admin Partidos</button>
-          <button onClick={() => setCurrentView('match_analysis')}>Análisis de Partidos</button>
-          <button onClick={() => setCurrentView('button_editor')}>Admin Botones</button>
+          <div><button onClick={() => setCurrentView('admin_panel')}>Admin Partidos</button></div>
+          <div><button onClick={() => setCurrentView('match_analysis')}>Análisis de Partidos</button></div>
+          <div><button onClick={() => setCurrentView('button_editor')}>Admin Botones</button></div>
         </div>
       )}
 
