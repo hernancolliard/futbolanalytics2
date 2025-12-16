@@ -22,10 +22,11 @@ const MatchAnalysis = ({ matchId }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch lineup for the match and all events for the match
-        const [lineupResponse, eventsResponse] = await Promise.all([
+        // Fetch lineup, events and trigger view count
+        const [lineupResponse, eventsResponse, _] = await Promise.all([
           api.getMatchLineup(matchId),
-          api.getEvents(matchId)
+          api.getEvents(matchId),
+          api.getMatch(matchId) // This call increments the view count
         ]);
         // Extract player data from the lineup
         const playersFromLineup = lineupResponse.data.map(lineupItem => lineupItem.player);

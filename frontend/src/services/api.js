@@ -35,6 +35,7 @@ export const getPlayers = (teamId = null) => {
 // Matches
 export const createMatch = (matchData) => apiClient.post("/matches", matchData);
 export const getMatches = () => apiClient.get("/matches");
+export const getMatch = (matchId) => apiClient.get(`/matches/${matchId}`);
 export const likeMatch = (matchId) => apiClient.post(`/matches/${matchId}/like`);
 export const updateMatch = (matchId, data) => apiClient.put(`/matches/${matchId}`, data);
 export const deleteMatch = (matchId) => apiClient.delete(`/matches/${matchId}`);
@@ -63,6 +64,7 @@ export default {
   // Matches
   createMatch,
   getMatches,
+  getMatch,
   likeMatch,
   updateMatch,
   deleteMatch,

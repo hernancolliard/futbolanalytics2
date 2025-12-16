@@ -48,6 +48,7 @@ class MatchBase(BaseModel):
     away_team_id: Optional[int] = None
     notes: Optional[str] = None
     likes: int = 0
+    views: int = 0
 
 class MatchCreate(MatchBase):
     pass

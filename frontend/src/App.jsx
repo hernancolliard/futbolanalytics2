@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import MatchAnalysis from '../components/MatchAnalysis';
-import MatchSelector from '../components/MatchSelector';
+import MatchList from '../components/MatchList'; // Import MatchList
 import Login from '../components/Login';
 import Register from '../components/Register';
 import AdminPanel from '../components/AdminPanel';
@@ -10,28 +10,18 @@ import api from './services/api';
 import '../components/AuthForms.css'; // Import the styling
 
 function App() {
-  const [matches, setMatches] = useState([]);
   const [selectedMatchId, setSelectedMatchId] = useState(null);
   const { token, user, login, logout, register } = useAuth();
   const [showLogin, setShowLogin] = useState(true);
   const [currentView, setCurrentView] = useState('match_analysis');
 
-  useEffect(() => {
-    fetchMatches();
-  }, []);
-
-  const fetchMatches = async () => {
-    try {
-      const response = await api.getMatches();
-      setMatches(response.data);
-    } catch (error) {
-      console.error("Error fetching matches:", error);
-    }
-  };
-
   const handleSelectMatch = (matchId) => {
     setSelectedMatchId(matchId);
   };
+
+  const handleBackToList = () => {
+    setSelectedMatchId(null);
+  }
 
   /* if (!token) {
     return (
@@ -63,8 +53,14 @@ function App() {
       {currentView === 'button_editor' && <ButtonEditor />}
       {currentView === 'match_analysis' && (
         <>
-          <MatchSelector matches={matches} onSelectMatch={handleSelectMatch} onMatchesUpdated={fetchMatches} />
-          {selectedMatchId && <MatchAnalysis matchId={selectedMatchId} />}
+          {selectedMatchId ? (
+            <div>
+              <button onClick={handleBackToList}>&larr; Back to List</button>
+              <MatchAnalysis matchId={selectedMatchId} />
+            </div>
+          ) : (
+            <MatchList onSelectMatch={handleSelectMatch} />
+          )}
         </>
       )}
     </div>

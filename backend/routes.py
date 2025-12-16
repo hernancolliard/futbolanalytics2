@@ -151,6 +151,63 @@ def like_match(match_id):
     finally:
         db.close()
 
+@bp.route('/matches/<int:match_id>', methods=['GET'])
+def get_match(match_id):
+    db = get_db_session()
+    try:
+        match = db.query(models.Match).options(
+            joinedload(models.Match.home_team),
+            joinedload(models.Match.away_team)
+        ).filter_by(id=match_id).first()
+
+        if not match:
+            return jsonify({"error": "Match not found"}), 404
+
+        # Increment view count
+        match.views = (match.views or 0) + 1
+        db.commit()
+        db.refresh(match)
+        
+        # Serialize manually
+        match_dict = {
+            "id": match.id,
+            "title": match.title,
+            "date": match.date.isoformat() if match.date else None,
+            "venue": match.venue,
+            "video_path": match.video_path,
+            "notes": match.notes,
+            "likes": match.likes,
+            "views": match.views,
+            "home_team_id": match.home_team_id,
+            "away_team_id": match.away_team_id,
+            "home_team": None,
+            "away_team": None
+        }
+        if match.home_team:
+            match_dict["home_team"] = {
+                "id": match.home_team.id,
+                "name": match.home_team.name,
+                "coach": match.home_team.coach,
+                "logo_url": match.home_team.logo_url
+            }
+        if match.away_team:
+            match_dict["away_team"] = {
+                "id": match.away_team.id,
+                "name": match.away_team.name,
+                "coach": match.away_team.coach,
+                "logo_url": match.away_team.logo_url
+            }
+
+        return jsonify(match_dict)
+    except Exception as e:
+        db.rollback()
+        import traceback
+        logging.error(f"A critical error occurred in get_match: {str(e)}")
+        logging.error(traceback.format_exc())
+        return jsonify({"error": "An internal server error occurred."}), 500
+    finally:
+        db.close()
+
 import logging
 
 # ... (rest of the imports)
@@ -185,6 +242,7 @@ def list_matches():
                 "video_path": m.video_path,
                 "notes": m.notes,
                 "likes": m.likes,
+                "views": m.views,
                 "home_team_id": m.home_team_id,
                 "away_team_id": m.away_team_id,
                 "home_team": None,
