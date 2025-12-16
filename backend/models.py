@@ -78,7 +78,7 @@ class Event(Base):
     timestamp = Column(REAL)
     x = Column(Integer)
     y = Column(Integer)
-    metadata = Column(JSONB)
+    data = Column(JSONB)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     match = relationship('Match', back_populates='events')

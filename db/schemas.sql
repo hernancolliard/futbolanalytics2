@@ -68,6 +68,6 @@ CREATE TABLE events (
     "timestamp" REAL, -- Cambiado de 'minute' para más precisión
     x INTEGER,
     y INTEGER,
-    metadata JSONB, -- Usar JSONB para metadatos más complejos
+    data JSONB, -- Usar JSONB para metadatos más complejos
     created_at TIMESTAMPTZ DEFAULT NOW()
 );

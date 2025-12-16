@@ -85,7 +85,7 @@ class EventBase(BaseModel):
     timestamp: float
     x: Optional[int] = None
     y: Optional[int] = None
-    metadata: Optional[dict] = None
+    data: Optional[dict] = None
 
 class EventCreate(EventBase):
     pass
