@@ -17,81 +17,59 @@ apiClient.interceptors.request.use(
   }
 );
 
-export const getPlayers = async () => {
-  const response = await apiClient.get("/players");
-  return response.data;
+// Auth
+export const login = (credentials) => apiClient.post("/login", credentials);
+export const register = (userData) => apiClient.post("/register", userData);
+
+// Teams
+export const createTeam = (teamData) => apiClient.post("/teams", teamData);
+export const getTeams = () => apiClient.get("/teams");
+
+// Players
+export const createPlayer = (playerData) => apiClient.post("/players", playerData);
+export const getPlayers = (teamId = null) => {
+  const params = teamId ? { team_id: teamId } : {};
+  return apiClient.get("/players", { params });
 };
 
-export const getMatches = () => {
-  return apiClient.get("/matches");
-};
+// Matches
+export const createMatch = (matchData) => apiClient.post("/matches", matchData);
+export const getMatches = () => apiClient.get("/matches");
+export const updateMatch = (matchId, data) => apiClient.put(`/matches/${matchId}`, data);
+export const deleteMatch = (matchId) => apiClient.delete(`/matches/${matchId}`);
 
-export const createMatch = (data) => {
-  return apiClient.post("/matches", data);
-};
+// Lineups
+export const addPlayerToLineup = (matchId, lineupData) => apiClient.post(`/matches/${matchId}/lineup`, lineupData);
+export const getMatchLineup = (matchId) => apiClient.get(`/matches/${matchId}/lineup`);
 
-export const updateMatch = (matchId, data) => {
-  return apiClient.put(`/matches/${matchId}`, data);
-};
+// Events
+export const getEvents = (matchId) => apiClient.get(`/matches/${matchId}/events`);
+export const createEvent = (matchId, eventData) => apiClient.post(`/matches/${matchId}/events`, eventData);
+export const updateEvent = (eventId, eventData) => apiClient.put(`/events/${eventId}`, eventData);
+export const deleteEvent = (eventId) => apiClient.delete(`/events/${eventId}`);
 
-export const deleteMatch = (matchId) => {
-  return apiClient.delete(`/matches/${matchId}`);
-};
-
-export const getButtons = () => {
-  return apiClient.get("/buttons");
-};
-
-export const createButton = (data) => {
-  return apiClient.post("/buttons", data);
-};
-
-export const updateButton = (buttonId, data) => {
-  return apiClient.put(`/buttons/${buttonId}`, data);
-};
-
-export const deleteButton = (buttonId) => {
-  return apiClient.delete(`/buttons/${buttonId}`);
-};
-
-export const getEvents = (matchId) => {
-  return apiClient.get(`/matches/${matchId}/events`);
-};
-
-export const createEvent = (matchId, eventData) => {
-  return apiClient.post(`/matches/${matchId}/events`, eventData);
-};
-
-export const deleteEvent = (eventId) => {
-  return apiClient.delete(`/events/${eventId}`);
-};
-
-export const updateEvent = (eventId, eventData) => {
-  return apiClient.put(`/events/${eventId}`, eventData);
-};
-
-export const login = (credentials) => {
-  return apiClient.post("/login", credentials);
-};
-
-export const register = (userData) => {
-  return apiClient.post("/register", userData);
-};
 
 export default {
-  getMatches,
-  createMatch,
-  updateMatch,
-  deleteMatch,
-  getButtons,
-  createButton,
-  updateButton,
-  deleteButton,
-  getPlayers,
-  getEvents,
-  createEvent,
-  deleteEvent,
-  updateEvent,
+  // Auth
   login,
   register,
+  // Teams
+  createTeam,
+  getTeams,
+  // Players
+  createPlayer,
+  getPlayers,
+  // Matches
+  createMatch,
+  getMatches,
+  updateMatch,
+  deleteMatch,
+  // Lineups
+  addPlayerToLineup,
+  getMatchLineup,
+  // Events
+  getEvents,
+  createEvent,
+  updateEvent,
+  deleteEvent,
 };

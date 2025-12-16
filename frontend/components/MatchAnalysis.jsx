@@ -22,19 +22,22 @@ const MatchAnalysis = ({ matchId }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [playersResponse, eventsResponse] = await Promise.all([
-          api.getPlayers(),
+        // Fetch lineup for the match and all events for the match
+        const [lineupResponse, eventsResponse] = await Promise.all([
+          api.getMatchLineup(matchId),
           api.getEvents(matchId)
         ]);
-        setPlayers(playersResponse.map(p => p.name));
+        // Extract player data from the lineup
+        const playersFromLineup = lineupResponse.data.map(lineupItem => lineupItem.player);
+        setPlayers(playersFromLineup);
         setEvents(eventsResponse.data);
       } catch (error) {
-        console.error("Error fetching data:", error);
-        // Set some default data if the API fails
-        setPlayers(['Pérez', 'Gómez', 'Rodríguez', 'Sánchez']);
+        console.error("Error fetching match data:", error);
+        // Fallback mock data
+        setPlayers([{id: 1, name: 'Pérez'}, {id: 2, name: 'Gómez'}]);
         setEvents([
-          { time: '12:33', player: 'Pérez', action: 'Pase', result: '✅', x: 50, y: 50 }, // Use x, y instead of zone
-          { time: '13:10', player: 'Gómez', action: 'Tiro', result: '❌', x: 80, y: 20 }, // Use x, y instead of zone
+          { id: 1, timestamp: 753, player: {id: 1, name: 'Pérez'}, event_type: 'Pase', x: 50, y: 50 },
+          { id: 2, timestamp: 790, player: {id: 2, name: 'Gómez'}, event_type: 'Tiro', x: 80, y: 20 },
         ]);
       }
     };

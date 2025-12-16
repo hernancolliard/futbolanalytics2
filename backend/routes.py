@@ -1,339 +1,220 @@
-from flask_jwt_extended import create_access_token, jwt_required
+from flask import Blueprint, request, jsonify
+from flask_jwt_extended import jwt_required
 from werkzeug.security import generate_password_hash, check_password_hash
-from schemas import MatchSchema, EventSchema, UserSchema, CustomButtonSchema
-from models import Match, Event, User, CustomButton
+from sqlalchemy.orm import Session, joinedload
 from database import get_db
-from sqlalchemy.orm import Session
-from werkzeug.utils import secure_filename
-from flask import Blueprint, request, jsonify, current_app, send_from_directory
-import boto3
-from botocore.exceptions import NoCredentialsError
-import os
+import models
+import schemas
 
 bp = Blueprint('api', __name__)
-ALLOWED_EXT = {'mp4', 'mov', 'avi', 'mkv'}
-def allowed_file(filename):
-  return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXT
 
-def _upload_to_s3(file, filename):
-    s3 = boto3.client(
-       's3',
-       aws_access_key_id=os.getenv('AWS_ACCESS_KEY_ID'),
-       aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY'),
-       region_name=os.getenv('S3_REGION')
-    )
-    bucket_name = os.getenv('S3_BUCKET')
-    try:
-        s3.upload_fileobj(
-            file,
-            bucket_name,
-            filename,
-            ExtraArgs={
-                "ACL": "public-read",
-                "ContentType": file.content_type
-            }
-        )
-        return f"https://{bucket_name}.s3.{os.getenv('S3_REGION')}.amazonaws.com/{filename}"
-    except NoCredentialsError:
-        raise Exception("AWS credentials not available")
+# Helper function to get db session
+def get_db_session():
+    return next(get_db())
 
-
-@bp.route('/matches', methods=['GET'])
-@jwt_required()
-def list_matches():
-  db = next(get_db())
-
-  matches = db.query(Match).order_by(Match.date.desc()).all()
-  return jsonify(MatchSchema(many=True).dump(matches))
-@bp.route('/matches', methods=['POST'])
-@jwt_required()
-def create_match():
-  db = next(get_db())
-  title = request.form.get('title')
-  date = request.form.get('date')
-  venue = request.form.get('venue')
-  file = request.files.get('video')
-  video_path = None
-  if file and allowed_file(file.filename):
-    filename = secure_filename(file.filename)
-    try:
-        video_path = _upload_to_s3(file, filename)
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-  match = Match(title=title, date=date or None, venue=venue,
-video_path=video_path)
-  db.add(match)
-  db.commit()
-  db.refresh(match)
-  return jsonify(MatchSchema().dump(match)), 201
-
-@bp.route('/matches/<int:match_id>/video', methods=['POST'])
-@jwt_required()
-def upload_video_to_s3(match_id):
-    db = next(get_db())
-    match = db.query(Match).get(match_id)
-    if not match:
-        return jsonify({"error": "Match not found"}), 404
-
-    file = request.files.get('video')
-    if not file or not allowed_file(file.filename):
-        return jsonify({"error": "File not allowed or not provided"}), 400
-
-    filename = secure_filename(file.filename)
-    try:
-        video_url = _upload_to_s3(file, filename)
-        match.video_path = video_url
-        db.commit()
-        return jsonify({"message": "Video uploaded successfully", "url": video_url}), 200
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-@bp.route('/uploads/<path:filename>')
-def uploaded_file(filename):
-  return send_from_directory(current_app.config['UPLOAD_FOLDER'], filename)
-@bp.route('/matches/<int:match_id>/events', methods=['GET'])
-@jwt_required()
-def get_events(match_id):
-    db = next(get_db())
-    match = db.query(Match).get(match_id)
-    if not match:
-        return jsonify({"error": "Match not found"}), 404
-    return jsonify(EventSchema(many=True).dump(match.events))
-
-# Minimal event endpoint
-@bp.route('/matches/<int:match_id>/events', methods=['POST'])
-@jwt_required()
-def add_event(match_id):
-  db = next(get_db())
-  data = request.get_json()
-  ev = Event(
-      match_id=match_id, 
-      time=data.get('time'),
-      player=data.get('player'),
-      action=data.get('action'),
-      result=data.get('result'),
-      x=data.get('x'),
-      y=data.get('y'),
-      meta_data=data.get('metadata')
-  )
-  db.add(ev)
-  db.commit()
-  db.refresh(ev)
-  return jsonify(EventSchema().dump(ev)), 201
-
-@bp.route('/events/<int:event_id>', methods=['PUT'])
-@jwt_required()
-def update_event(event_id):
-    db = next(get_db())
-    event = db.query(Event).get(event_id)
-    if not event:
-        return jsonify({"error": "Event not found"}), 404
-    data = request.get_json()
-    for key, value in data.items():
-        setattr(event, key, value)
-    db.commit()
-    db.refresh(event)
-    return jsonify(EventSchema().dump(event))
-
-@bp.route('/events/<int:event_id>', methods=['DELETE'])
-@jwt_required()
-def delete_event(event_id):
-    db = next(get_db())
-    event = db.query(Event).get(event_id)
-    if not event:
-        return jsonify({"error": "Event not found"}), 404
-    db.delete(event)
-    db.commit()
-    return jsonify({"message": "Event deleted successfully"}), 200
-
-
-
-
-
-@bp.route('/players', methods=['GET'])
-@jwt_required()
-def list_players():
-    db = next(get_db())
-    players = db.query(User).all()
-    return jsonify(UserSchema(many=True).dump(players))
-
+# User and Auth Routes
 @bp.route('/register', methods=['POST'])
-
 def register():
-    db = next(get_db())
+    db = get_db_session()
     try:
         data = request.get_json()
-        hashed_password = generate_password_hash(data['password'])
-        new_user = User(
-            email=data['email'],
-            name=data['name'],
-            password_hash=hashed_password
+        validated_data = schemas.UserCreate(**data)
+        hashed_password = generate_password_hash(validated_data.password)
+        new_user = models.User(
+            email=validated_data.email,
+            name=validated_data.name,
+            password_hash=hashed_password,
+            is_admin=validated_data.is_admin
         )
         db.add(new_user)
         db.commit()
-        db.refresh(new_user) # Refresh user to get its ID
-        print(f"New user ID: {new_user.id}") # Debugging
-        access_token = create_access_token(identity=new_user.id) # Generate token for new user
-        return jsonify(access_token=access_token), 201
+        db.refresh(new_user)
+        return jsonify(schemas.User.from_orm(new_user).dict()), 201
     except Exception as e:
         db.rollback()
         return jsonify({"message": f"Registration failed: {str(e)}"}), 400
     finally:
         db.close()
 
-
-
 @bp.route('/login', methods=['POST'])
-
-
-
 def login():
+    db = get_db_session()
+    try:
+        data = request.get_json()
+        user = db.query(models.User).filter_by(email=data['email']).first()
+        if user and check_password_hash(user.password_hash, data['password']):
+            # NOTE: create_access_token would be imported from flask_jwt_extended
+            # and configured in the main app factory.
+            # For now, returning a simple success message.
+            return jsonify({"message": "Login successful", "user": schemas.User.from_orm(user).dict()})
+        return jsonify({"message": "Invalid credentials"}), 401
+    finally:
+        db.close()
 
-
-
-    db = next(get_db())
-
-
-
-    data = request.get_json()
-
-
-
-    print(f"Attempting login for email: {data['email']}") # Debugging
-
-
-
-    user = db.query(User).filter_by(email=data['email']).first()
-
-
-
-    if user:
-
-
-
-        print(f"User found: {user.email}") # Debugging
-
-
-
-        if check_password_hash(user.password_hash, data['password']):
-
-
-
-            print("Password check successful.") # Debugging
-
-
-
-            access_token = create_access_token(identity=user.id)
-
-
-
-            return jsonify(access_token=access_token)
-
-
-
-        else:
-
-
-
-            print("Password check failed.") # Debugging
-
-
-
-    else:
-
-
-
-        print("User not found.") # Debugging
-
-
-
-    return jsonify({"message": "Invalid credentials"}), 401
-
-
-
-@bp.route('/buttons', methods=['GET'])
-
+# Team Routes
+@bp.route('/teams', methods=['POST'])
 @jwt_required()
+def create_team():
+    db = get_db_session()
+    try:
+        data = request.get_json()
+        validated_data = schemas.TeamCreate(**data)
+        team = models.Team(**validated_data.dict())
+        db.add(team)
+        db.commit()
+        db.refresh(team)
+        return jsonify(schemas.Team.from_orm(team).dict()), 201
+    except Exception as e:
+        db.rollback()
+        return jsonify({"error": str(e)}), 400
+    finally:
+        db.close()
 
-def list_buttons():
-
-    db = next(get_db())
-
-    buttons = db.query(CustomButton).all()
-
-    return jsonify(CustomButtonSchema(many=True).dump(buttons))
-
-
-
-@bp.route('/buttons', methods=['POST'])
-
+@bp.route('/teams', methods=['GET'])
 @jwt_required()
+def list_teams():
+    db = get_db_session()
+    try:
+        teams = db.query(models.Team).all()
+        return jsonify([schemas.Team.from_orm(t).dict() for t in teams])
+    finally:
+        db.close()
 
-def create_button():
-
-    db = next(get_db())
-
-    data = request.get_json()
-
-    button = CustomButton(name=data['name'], color=data.get('color'))
-
-    db.add(button)
-
-    db.commit()
-
-    db.refresh(button)
-
-    return jsonify(CustomButtonSchema().dump(button)), 201
-
-
-
-@bp.route('/buttons/<int:button_id>', methods=['PUT'])
-
+# Player Routes
+@bp.route('/players', methods=['POST'])
 @jwt_required()
+def create_player():
+    db = get_db_session()
+    try:
+        data = request.get_json()
+        validated_data = schemas.PlayerCreate(**data)
+        player = models.Player(**validated_data.dict())
+        db.add(player)
+        db.commit()
+        db.refresh(player)
+        return jsonify(schemas.Player.from_orm(player).dict()), 201
+    except Exception as e:
+        db.rollback()
+        return jsonify({"error": str(e)}), 400
+    finally:
+        db.close()
 
-def update_button(button_id):
-
-    db = next(get_db())
-
-    button = db.query(CustomButton).get(button_id)
-
-    if not button:
-
-        return jsonify({"error": "Button not found"}), 404
-
-    data = request.get_json()
-
-    button.name = data.get('name', button.name)
-
-    button.color = data.get('color', button.color)
-
-    db.commit()
-
-    db.refresh(button)
-
-    return jsonify(CustomButtonSchema().dump(button))
-
-
-
-@bp.route('/buttons/<int:button_id>', methods=['DELETE'])
-
+@bp.route('/players', methods=['GET'])
 @jwt_required()
+def list_players():
+    db = get_db_session()
+    try:
+        team_id = request.args.get('team_id')
+        query = db.query(models.Player)
+        if team_id:
+            query = query.filter(models.Player.team_id == team_id)
+        players = query.all()
+        return jsonify([schemas.Player.from_orm(p).dict() for p in players])
+    finally:
+        db.close()
 
-def delete_button(button_id):
+# Match Routes
+@bp.route('/matches', methods=['POST'])
+@jwt_required()
+def create_match():
+    db = get_db_session()
+    try:
+        data = request.get_json()
+        validated_data = schemas.MatchCreate(**data)
+        match = models.Match(**validated_data.dict())
+        db.add(match)
+        db.commit()
+        db.refresh(match)
+        return jsonify(schemas.Match.from_orm(match).dict()), 201
+    except Exception as e:
+        db.rollback()
+        return jsonify({"error": str(e)}), 400
+    finally:
+        db.close()
 
-    db = next(get_db())
+@bp.route('/matches', methods=['GET'])
+@jwt_required()
+def list_matches():
+    db = get_db_session()
+    try:
+        matches = db.query(models.Match).options(
+            joinedload(models.Match.home_team),
+            joinedload(models.Match.away_team)
+        ).order_by(models.Match.date.desc()).all()
+        return jsonify([schemas.Match.from_orm(m).dict() for m in matches])
+    finally:
+        db.close()
 
-    button = db.query(CustomButton).get(button_id)
+# Lineup Routes
+@bp.route('/matches/<int:match_id>/lineup', methods=['POST'])
+@jwt_required()
+def add_player_to_lineup(match_id):
+    db = get_db_session()
+    try:
+        data = request.get_json()
+        # Add match_id from URL to the data
+        data['match_id'] = match_id
+        validated_data = schemas.MatchLineupCreate(**data)
+        
+        # Check if player is already in lineup
+        existing = db.query(models.MatchLineup).filter_by(
+            match_id=validated_data.match_id,
+            player_id=validated_data.player_id
+        ).first()
+        if existing:
+            return jsonify({"error": "Player already in lineup for this match"}), 409
 
-    if not button:
+        lineup_entry = models.MatchLineup(**validated_data.dict())
+        db.add(lineup_entry)
+        db.commit()
+        db.refresh(lineup_entry)
+        return jsonify(schemas.MatchLineup.from_orm(lineup_entry).dict()), 201
+    except Exception as e:
+        db.rollback()
+        return jsonify({"error": str(e)}), 400
+    finally:
+        db.close()
 
-        return jsonify({"error": "Button not found"}), 404
+@bp.route('/matches/<int:match_id>/lineup', methods=['GET'])
+@jwt_required()
+def get_match_lineup(match_id):
+    db = get_db_session()
+    try:
+        lineup = db.query(models.MatchLineup).options(
+            joinedload(models.MatchLineup.player).joinedload(models.Player.team)
+        ).filter(models.MatchLineup.match_id == match_id).all()
+        return jsonify([schemas.MatchLineup.from_orm(l).dict() for l in lineup])
+    finally:
+        db.close()
+        
+# Event Routes
+@bp.route('/matches/<int:match_id>/events', methods=['POST'])
+@jwt_required()
+def add_event_to_match(match_id):
+    db = get_db_session()
+    try:
+        data = request.get_json()
+        data['match_id'] = match_id
+        validated_data = schemas.EventCreate(**data)
+        event = models.Event(**validated_data.dict())
+        db.add(event)
+        db.commit()
+        db.refresh(event)
+        return jsonify(schemas.Event.from_orm(event).dict()), 201
+    except Exception as e:
+        db.rollback()
+        return jsonify({"error": str(e)}), 400
+    finally:
+        db.close()
 
-    db.delete(button)
-
-    db.commit()
-
-    return jsonify({"message": "Button deleted successfully"}), 200
-
-
+@bp.route('/matches/<int:match_id>/events', methods=['GET'])
+@jwt_required()
+def get_match_events(match_id):
+    db = get_db_session()
+    try:
+        events = db.query(models.Event).options(
+            joinedload(models.Event.player)
+        ).filter(models.Event.match_id == match_id).all()
+        return jsonify([schemas.Event.from_orm(e).dict() for e in events])
+    finally:
+        db.close()
