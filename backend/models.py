@@ -50,6 +50,7 @@ class Match(Base):
     home_team_id = Column(Integer, ForeignKey('teams.id'))
     away_team_id = Column(Integer, ForeignKey('teams.id'))
     notes = Column(Text)
+    likes = Column(Integer, default=0, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     home_team = relationship('Team', foreign_keys=[home_team_id], back_populates='home_matches')

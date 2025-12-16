@@ -132,6 +132,25 @@ def create_match():
     finally:
         db.close()
 
+@bp.route('/matches/<int:match_id>/like', methods=['POST'])
+def like_match(match_id):
+    db = get_db_session()
+    try:
+        match = db.query(models.Match).filter_by(id=match_id).first()
+        if not match:
+            return jsonify({"error": "Match not found"}), 404
+        
+        match.likes = (match.likes or 0) + 1
+        db.commit()
+        db.refresh(match)
+        
+        return jsonify({"id": match.id, "likes": match.likes})
+    except Exception as e:
+        db.rollback()
+        return jsonify({"error": str(e)}), 500
+    finally:
+        db.close()
+
 import logging
 
 # ... (rest of the imports)
@@ -165,6 +184,7 @@ def list_matches():
                 "venue": m.venue,
                 "video_path": m.video_path,
                 "notes": m.notes,
+                "likes": m.likes,
                 "home_team_id": m.home_team_id,
                 "away_team_id": m.away_team_id,
                 "home_team": None,
