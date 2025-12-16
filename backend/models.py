@@ -24,8 +24,8 @@ class Team(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     
     players = relationship('Player', back_populates='team')
-    home_matches = relationship('Match', foreign_keys='Match.home_team_id', back_populates='home_team')
-    away_matches = relationship('Match', foreign_keys='Match.away_team_id', back_populates='away_team')
+    home_matches = relationship('Match', back_populates='home_team')
+    away_matches = relationship('Match', back_populates='away_team')
 
 class Player(Base):
     __tablename__ = 'players'
