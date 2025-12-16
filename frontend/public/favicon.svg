@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <circle cx="50" cy="50" r="48" fill="white" stroke="black" stroke-width="2"/>
+  <polygon points="50,10 60,30 40,30" fill="black"/>
+  <polygon points="50,90 60,70 40,70" fill="black"/>
+  <polygon points="10,50 30,60 30,40" fill="black"/>
+  <polygon points="90,50 70,60 70,40" fill="black"/>
+  <polygon points="25,25 35,45 15,45" fill="black" transform="rotate(30, 25, 25)"/>
+  <polygon points="75,25 85,45 65,45" fill="black" transform="rotate(-30, 75, 25)"/>
+  <polygon points="25,75 35,95 15,95" fill="black" transform="rotate(-30, 25, 75)"/>
+  <polygon points="75,75 85,95 65,95" fill="black" transform="rotate(30, 75, 75)"/>
+</svg>
