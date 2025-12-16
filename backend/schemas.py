@@ -18,7 +18,7 @@ class Team(TeamBase):
     id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 # Player Schemas
 class PlayerBase(BaseModel):
@@ -36,7 +36,7 @@ class Player(PlayerBase):
     team: Optional[Team] = None # Include team data on read
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 # Match Schemas
 class MatchBase(BaseModel):
@@ -58,7 +58,7 @@ class Match(MatchBase):
     away_team: Optional[Team] = None
     
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 # MatchLineup Schemas
 class MatchLineupBase(BaseModel):
@@ -75,7 +75,7 @@ class MatchLineup(MatchLineupBase):
     player: Player # Show full player info in lineup
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 # Event Schemas
 class EventBase(BaseModel):
@@ -95,7 +95,7 @@ class Event(EventBase):
     player: Optional[Player] = None # Show player info on read
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 # User Schemas
 class UserBase(BaseModel):
@@ -112,4 +112,4 @@ class User(UserBase):
     created_at: datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True
