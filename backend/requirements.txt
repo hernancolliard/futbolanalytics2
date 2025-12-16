@@ -8,3 +8,4 @@ Werkzeug==2.3.7
 gunicorn==20.1.0
 boto3==1.28.0 # opcional si usas S3
 Flask-JWT-Extended==4.5.3
+pydantic
