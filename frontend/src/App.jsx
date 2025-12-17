@@ -15,6 +15,8 @@ function App() {
   const [showLogin, setShowLogin] = useState(true);
   const [currentView, setCurrentView] = useState("match_analysis");
 
+  console.log("User object in App.jsx:", user); // Added console log
+
   const handleSelectMatch = (matchId) => {
     setSelectedMatchId(matchId);
   };
