@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './AdminPanel.css';
-import api from '../src/services/api';
+import api from '../services/api';
 
 const AdminPanel = () => {
   const [matches, setMatches] = useState([]);

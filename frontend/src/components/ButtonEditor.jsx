@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import api from '../src/services/api';
+import api from '../services/api';
 import './ButtonEditor.css';
 
 const ButtonEditor = () => {

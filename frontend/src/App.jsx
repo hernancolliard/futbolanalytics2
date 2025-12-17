@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import MatchAnalysis from '../components/MatchAnalysis';
-import MatchList from '../components/MatchList'; // Import MatchList
-import Login from '../components/Login';
-import Register from '../components/Register';
-import AdminPanel from '../components/AdminPanel';
-import ButtonEditor from '../components/ButtonEditor';
+import MatchAnalysis from './components/MatchAnalysis';
+import MatchList from './components/MatchList'; // Import MatchList
+import Login from './components/Login';
+import Register from './components/Register';
+import AdminPanel from './components/AdminPanel';
+import ButtonEditor from './components/ButtonEditor';
 import { useAuth } from './context/AuthContext';
 import api from './services/api';
-import '../components/AuthForms.css'; // Import the styling
+import './components/AuthForms.css'; // Import the styling
 
 function App() {
   const [selectedMatchId, setSelectedMatchId] = useState(null);

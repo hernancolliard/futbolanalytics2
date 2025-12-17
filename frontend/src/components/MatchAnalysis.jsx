@@ -7,7 +7,7 @@ import MatchTimeline from './MatchTimeline';
 import EventsTable from './EventsTable';
 import DataMatrix from './DataMatrix'; // Importar DataMatrix
 import DrawingTools from './DrawingTools';
-import api from '../src/services/api';
+import api from '../services/api';
 
 const MatchAnalysis = ({ matchId }) => {
   const [events, setEvents] = useState([]);

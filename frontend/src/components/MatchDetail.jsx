@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import API from "../src/services/api";
+import API from "../services/api";
 
 export default function MatchDetail() {
   const [match, setMatch] = useState(null);
