@@ -13,7 +13,7 @@ def get_db_session():
     return next(get_db())
 
 # User and Auth Routes
-@bp.route('/register', methods=['POST'])
+@bp.route('/register', methods=['POST', 'OPTIONS'])
 def register():
     db = get_db_session()
     try:
