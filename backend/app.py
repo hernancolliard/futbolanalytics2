@@ -9,7 +9,7 @@ def create_app():
     app.config.from_pyfile('config.py', silent=True)
     app.config["JWT_SECRET_KEY"] = "super-secret"  # Change this in your production environment
     jwt = JWTManager(app)
-    CORS(app)
+    CORS(app, resources={r"/api/*": {"origins": "https://futbolanalytics2-1.onrender.com"}})
     init_db()
     app.register_blueprint(api_bp, url_prefix='/api')
     return app
