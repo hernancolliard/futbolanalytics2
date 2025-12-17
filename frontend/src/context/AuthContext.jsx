@@ -9,9 +9,22 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
 
     useEffect(() => {
-        if (token) {
-            const decoded = jwtDecode(token);
-            setUser(decoded);
+        if (token && token.split('.').length === 3) {
+            try {
+                const decoded = jwtDecode(token);
+                setUser(decoded);
+            } catch (error) {
+                console.error("Error decoding token from localStorage:", error);
+                // If token is invalid, clear it
+                localStorage.removeItem('token');
+                setToken(null);
+                setUser(null);
+            }
+        } else if (token) {
+            console.error("Invalid token format found in localStorage. Clearing token.");
+            localStorage.removeItem('token');
+            setToken(null);
+            setUser(null);
         }
     }, [token]);
 
@@ -19,11 +32,18 @@ export const AuthProvider = ({ children }) => {
         try {
             const response = await api.login(credentials);
             const { access_token } = response.data;
-            console.log("Access Token received:", access_token); // Debugging line
             localStorage.setItem('token', access_token);
             setToken(access_token);
-            const decoded = jwtDecode(access_token);
-            setUser(decoded);
+            if (access_token && access_token.split('.').length === 3) {
+                const decoded = jwtDecode(access_token);
+                setUser(decoded);
+            } else {
+                console.error("Invalid access_token format received from API. Clearing token.");
+                localStorage.removeItem('token');
+                setToken(null);
+                setUser(null);
+                throw new Error("Invalid token received from server.");
+            }
         } catch (error) {
             console.error("Login failed:", error);
             throw error; // Re-throw to propagate the error for UI feedback
