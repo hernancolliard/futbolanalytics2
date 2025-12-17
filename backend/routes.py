@@ -264,3 +264,84 @@ def get_match(match_id):
 
     finally:
         db.close()
+
+# ------------------------------------------------------------------
+# BUTTONS
+# ------------------------------------------------------------------
+
+@bp.route("/buttons", methods=["GET"])
+@jwt_required()
+def list_buttons():
+    db = get_db_session()
+    try:
+        buttons = db.query(models.Button).all()
+        return jsonify([schemas.Button.from_orm(b).dict() for b in buttons])
+    finally:
+        db.close()
+
+
+@bp.route("/buttons", methods=["POST"])
+@jwt_required()
+def create_button():
+    db = get_db_session()
+    try:
+        validated = schemas.ButtonCreate(**request.get_json())
+        button = models.Button(**validated.dict())
+
+        db.add(button)
+        db.commit()
+        db.refresh(button)
+
+        return jsonify(schemas.Button.from_orm(button).dict()), 201
+
+    except Exception as e:
+        db.rollback()
+        return jsonify({"error": str(e)}), 400
+    finally:
+        db.close()
+
+
+@bp.route("/buttons/<int:button_id>", methods=["PUT"])
+@jwt_required()
+def update_button(button_id):
+    db = get_db_session()
+    try:
+        button = db.query(models.Button).filter_by(id=button_id).first()
+        if not button:
+            return jsonify({"error": "Button not found"}), 404
+
+        validated = schemas.ButtonUpdate(**request.get_json())
+        for key, value in validated.dict(exclude_unset=True).items():
+            setattr(button, key, value)
+
+        db.commit()
+        db.refresh(button)
+
+        return jsonify(schemas.Button.from_orm(button).dict())
+
+    except Exception as e:
+        db.rollback()
+        return jsonify({"error": str(e)}), 400
+    finally:
+        db.close()
+
+
+@bp.route("/buttons/<int:button_id>", methods=["DELETE"])
+@jwt_required()
+def delete_button(button_id):
+    db = get_db_session()
+    try:
+        button = db.query(models.Button).filter_by(id=button_id).first()
+        if not button:
+            return jsonify({"error": "Button not found"}), 404
+
+        db.delete(button)
+        db.commit()
+
+        return jsonify({"message": "Button deleted successfully"}), 200
+
+    except Exception as e:
+        db.rollback()
+        return jsonify({"error": str(e)}), 400
+    finally:
+        db.close()

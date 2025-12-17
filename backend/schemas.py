@@ -145,3 +145,25 @@ class User(UserBase):
 
     class Config:
         from_attributes = True
+
+# ------------------------------------------------------------------
+# BUTTON SCHEMAS
+# ------------------------------------------------------------------
+
+class ButtonBase(BaseModel):
+    name: str
+    color: str
+
+class ButtonCreate(ButtonBase):
+    pass
+
+class ButtonUpdate(ButtonBase):
+    name: Optional[str] = None
+    color: Optional[str] = None
+
+class Button(ButtonBase):
+    id: int
+    created_at: datetime
+
+    class Config:
+        from_attributes = True

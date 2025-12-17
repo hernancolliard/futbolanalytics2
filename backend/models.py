@@ -192,3 +192,16 @@ class Event(Base):
 
     match = relationship("Match", back_populates="events")
     player = relationship("Player")
+
+
+# ------------------------------------------------------------------
+# BUTTONS
+# ------------------------------------------------------------------
+
+class Button(Base):
+    __tablename__ = "buttons"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(255), unique=True, nullable=False)
+    color = Column(String(7), nullable=False) # e.g., #RRGGBB
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
