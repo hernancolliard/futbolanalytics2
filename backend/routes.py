@@ -178,6 +178,7 @@ def create_match():
 def list_matches():
     db = get_db_session()
     try:
+        logging.info("Attempting to fetch matches.")
         matches = (
             db.query(models.Match)
             .options(
@@ -187,9 +188,12 @@ def list_matches():
             .order_by(models.Match.date.desc())
             .all()
         )
+        logging.info(f"Found {len(matches)} matches.")
 
         result = []
         for m in matches:
+            # Add logging for each match being processed
+            logging.info(f"Processing match ID: {m.id}, Title: {m.title}")
             result.append({
                 "id": m.id,
                 "title": m.title,
@@ -212,9 +216,12 @@ def list_matches():
                     "logo_url": m.away_team.logo_url
                 }
             })
-
+        logging.info("Successfully prepared match data for response.")
         return jsonify(result)
 
+    except Exception as e:
+        logging.error(f"Error fetching matches: {e}", exc_info=True)
+        return jsonify({"error": "Internal server error"}), 500 # Return 500 for unexpected errors
     finally:
         db.close()
 
