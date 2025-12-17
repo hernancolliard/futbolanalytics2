@@ -12,6 +12,11 @@ bp = Blueprint('api', __name__)
 def get_db_session():
     return next(get_db())
 
+# Generic OPTIONS handler for CORS preflight
+@bp.route('/<path:path>', methods=['OPTIONS'])
+def handle_options(path):
+    return '', 200
+
 # User and Auth Routes
 @bp.route('/register', methods=['POST', 'OPTIONS'])
 def register():
