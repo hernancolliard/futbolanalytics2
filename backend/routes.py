@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required, create_access_token
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy.orm import joinedload
 import logging
@@ -62,8 +62,10 @@ def login():
         if not user or not check_password_hash(user.password_hash, data["password"]):
             return jsonify({"error": "Invalid credentials"}), 401
 
+        access_token = create_access_token(identity=user.id)
         return jsonify({
             "message": "Login successful",
+            "access_token": access_token,
             "user": schemas.User.from_orm(user).dict()
         })
 
