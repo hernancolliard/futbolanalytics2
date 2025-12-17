@@ -23,7 +23,7 @@ function App() {
     setSelectedMatchId(null);
   };
 
-  /* if (!token) {
+  if (!token) {
     return (
       <div className="auth-container">
         {showLogin ? (
@@ -36,7 +36,7 @@ function App() {
         </button>
       </div>
     );
-  } */
+  }
 
   return (
     <div className="App">
