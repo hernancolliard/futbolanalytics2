@@ -1,0 +1,13 @@
+He revisado el código del frontend (`MatchList.jsx`) y del backend (`routes.py` para `/matches`).
+
+El componente `MatchList` está haciendo la llamada correcta al backend para obtener los partidos, y el backend está configurado para devolver una lista de partidos.
+
+El hecho de que veas "No matches yet" (No hay partidos todavía) significa que **actualmente no hay ningún partido registrado en tu base de datos.**
+
+Para que puedas ver algo, necesitas añadir partidos a la base de datos.
+
+Por favor, dime:
+1.  **¿Estás iniciando sesión con una cuenta de administrador?** Si es así, después de los cambios que hicimos en el backend, ¿ves ahora los botones del panel de administración ("Admin Partidos", "Admin Botones")? Si los ves, deberías poder usar el panel "Admin Partidos" para crear nuevos partidos.
+2.  Si tu usuario no es administrador o si, siendo administrador, no ves los paneles de administración, **¿tienes alguna forma de insertar datos directamente en tu base de datos?**
+
+Una vez que tengas algunos partidos en la base de datos, deberías verlos listados en la página principal.
