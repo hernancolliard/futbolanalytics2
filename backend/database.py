@@ -1,27 +1,45 @@
 import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
-from urllib.parse import quote_plus
-from dotenv import load_dotenv
 
+DB_URL = os.getenv("DATABASE_URL")
 
-load_dotenv()
-DB_URL = os.getenv('DATABASE_URL')
+if not DB_URL:
+    raise RuntimeError("DATABASE_URL is not set")
 
+engine = create_engine(
+    DB_URL,
+    future=True,
+    pool_pre_ping=True,
+    pool_size=5,
+    max_overflow=10
+)
 
-# SQLAlchemy engine
-engine = create_engine(DB_URL, future=True)
-SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
+SessionLocal = sessionmaker(
+    bind=engine,
+    autoflush=False,
+    autocommit=False
+)
+
 Base = declarative_base()
 
 
-# helper
+# -------------------------------------------------
+# DB SESSION DEPENDENCY
+# -------------------------------------------------
+
 def get_db():
     db = SessionLocal()
     try:
-      yield db
+        yield db
     finally:
-      db.close()
+        db.close()
+
+
+# -------------------------------------------------
+# INIT DB (NO usar automáticamente en producción)
+# -------------------------------------------------
+
 def init_db():
-    from models import User, Match, Event
+    import models  # importa todos los modelos
     Base.metadata.create_all(bind=engine)
