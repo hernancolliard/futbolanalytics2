@@ -1,0 +1,9 @@
+Si tu usuario tiene el rol "user" (no "admin"), no verás los botones de navegación que dicen "Análisis de Partidos", "Admin Partidos" o "Admin Botones". Esos botones solo aparecen para usuarios administradores.
+
+Sin embargo, deberías ver la sección de "Análisis de Partidos", que por defecto muestra la `MatchList` (lista de partidos). Si no hay partidos cargados o no puedes ver nada, entonces el problema podría estar en la carga de la `MatchList` o que no haya datos de partidos para mostrar.
+
+En resumen, como usuario normal, deberías ver:
+*   Un botón de "Logout" (Cerrar sesión).
+*   La lista de partidos (`MatchList`) o el análisis de un partido si hubieras seleccionado uno previamente.
+
+Si no ves nada de esto, o solo el botón de "Logout" sin la lista de partidos, por favor, indícamelo.
