@@ -1,0 +1,13 @@
+Entiendo. Parece que intentaste escribir `console.log(user)` directamente en la consola del navegador. La variable `user` no está disponible directamente en el ámbito global de la consola, sino dentro de la lógica de mi aplicación.
+
+Yo ya he añadido la línea `console.log("User object in App.jsx:", user);` dentro del archivo `frontend/src/App.jsx`.
+
+Para ver la información del objeto `user`, por favor, haz lo siguiente:
+
+1.  Asegúrate de que los últimos cambios se hayan desplegado en tu aplicación (si estás usando la versión en `futbolanalytics2.onrender.com`, es posible que necesites forzar un `redeploy` en Render si no se actualiza automáticamente, o simplemente refrescar la página si ya se actualizó).
+2.  Abre las Herramientas para desarrolladores de tu navegador (`F12` o `Ctrl+Shift+I` / `Cmd+Option+I`).
+3.  Ve a la pestaña **"Console"** (Consola).
+4.  **Recarga la página de tu aplicación** (con `F5` o el botón de recargar del navegador).
+5.  Después de que la página se cargue y hayas iniciado sesión, busca en la pestaña "Console" la línea que diga **"User object in App.jsx:"** seguida de la información del objeto.
+
+Por favor, copia y pégame el contenido de esa línea del `console.log`. Esa es la información que necesito.
