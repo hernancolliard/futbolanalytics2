@@ -2,12 +2,8 @@ Flask==2.3.3
 Flask-Cors==3.0.10
 # Usar SQLAlchemy 1.4.x para compatibilidad con Python 3.13/entornos locales
 SQLAlchemy==1.4.49
-# Use psycopg2-binary for Postgres compatibility on Render
-psycopg2-binary
-# Also install psycopg (psycopg3) to satisfy URLs that request the
-# 'psycopg' dialect (e.g., postgresql+psycopg). This prevents
-# SQLAlchemy NoSuchModuleError when the URL includes '+psycopg'.
-psycopg
+# Use a pinned psycopg2-binary wheel to avoid build issues on Render
+psycopg2-binary==2.9.7
 python-dotenv==1.0.0
 marshmallow==3.19.0
 Werkzeug==2.3.7
