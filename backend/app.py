@@ -1,15 +1,23 @@
 from flask import Flask
 from flask_cors import CORS
+import os
+import sys
+
+# Asegurar que la raíz del proyecto está en sys.path para que imports como
+# `backend.database` funcionen tanto en local como en despliegues (gunicorn).
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.dirname(BASE_DIR)
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
+
+# Intentar importar módulos desde el paquete `backend` o como módulos locales.
 try:
-    # Intentar importaciones relativas cuando se ejecuta desde el directorio backend
-    from database import init_db
-    from routes import bp as api_bp
-except Exception:
-    # Cuando se ejecuta desde la raíz del proyecto, usar imports con prefijo package
     from backend.database import init_db
     from backend.routes import bp as api_bp
+except Exception:
+    from database import init_db
+    from routes import bp as api_bp
 from flask_jwt_extended import JWTManager
-import os
 
 def create_app():
     app = Flask(__name__)
