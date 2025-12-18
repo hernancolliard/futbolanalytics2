@@ -50,6 +50,12 @@ export const createEvent = (matchId, eventData) => apiClient.post(`/matches/${ma
 export const updateEvent = (eventId, eventData) => apiClient.put(`/events/${eventId}`, eventData);
 export const deleteEvent = (eventId) => apiClient.delete(`/events/${eventId}`);
 
+// Buttons
+export const getButtons = () => apiClient.get("/buttons");
+export const createButton = (buttonData) => apiClient.post("/buttons", buttonData);
+export const updateButton = (buttonId, buttonData) => apiClient.put(`/buttons/${buttonId}`, buttonData);
+export const deleteButton = (buttonId) => apiClient.delete(`/buttons/${buttonId}`);
+
 
 export default {
   // Auth
@@ -76,4 +82,9 @@ export default {
   createEvent,
   updateEvent,
   deleteEvent,
+  // Buttons
+  getButtons,
+  createButton,
+  updateButton,
+  deleteButton,
 };
