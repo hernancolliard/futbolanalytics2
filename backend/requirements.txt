@@ -1,6 +1,7 @@
 Flask==2.3.3
 Flask-Cors==3.0.10
-SQLAlchemy==2.0.28
+# Usar SQLAlchemy 1.4.x para compatibilidad con Python 3.13/entornos locales
+SQLAlchemy==1.4.49
 psycopg
 python-dotenv==1.0.0
 marshmallow==3.19.0

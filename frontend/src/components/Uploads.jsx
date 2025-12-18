@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import API from "../src/services/api";
+import API from "../services/api";
 export default function Upload() {
   const [file, setFile] = useState(null);
   const [title, setTitle] = useState("");
@@ -11,7 +11,7 @@ export default function Upload() {
     form.append("title", title);
     try {
       const res = await API.post("/matches", form, {
-        headers: { ContentType: "multipart/form-data" },
+        headers: { "Content-Type": "multipart/form-data" },
       });
       alert("Uploaded: " + res.data.title);
     } catch (err) {

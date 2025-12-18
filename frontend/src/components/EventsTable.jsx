@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
 const EventsTable = ({ events, onDeleteEvent, onUpdateEvent }) => {
   const [editingIndex, setEditingIndex] = useState(null);
@@ -15,7 +15,11 @@ const EventsTable = ({ events, onDeleteEvent, onUpdateEvent }) => {
   };
 
   const handleSave = () => {
-    onUpdateEvent(editedEvent.id, editedEvent);
+    // Normalize numeric fields
+    const payload = { ...editedEvent };
+    if (payload.x !== undefined) payload.x = Number(payload.x);
+    if (payload.y !== undefined) payload.y = Number(payload.y);
+    onUpdateEvent(editedEvent.id, payload);
     setEditingIndex(null);
     setEditedEvent(null);
   };
@@ -44,26 +48,70 @@ const EventsTable = ({ events, onDeleteEvent, onUpdateEvent }) => {
             <tr key={index}>
               {editingIndex === index ? (
                 <>
-                  <td><input type="text" value={editedEvent.time} onChange={(e) => handleChange(e, 'time')} /></td>
-                  <td><input type="text" value={editedEvent.player} onChange={(e) => handleChange(e, 'player')} /></td>
-                  <td><input type="text" value={editedEvent.action} onChange={(e) => handleChange(e, 'action')} /></td>
-                  <td><input type="text" value={editedEvent.result} onChange={(e) => handleChange(e, 'result')} /></td>
                   <td>
-                    <input type="number" value={editedEvent.x} onChange={(e) => handleChange(e, 'x')} className="coords-input" />
-                    <input type="number" value={editedEvent.y} onChange={(e) => handleChange(e, 'y')} className="coords-input" />
+                    <input
+                      type="text"
+                      value={editedEvent.time}
+                      onChange={(e) => handleChange(e, "time")}
+                    />
                   </td>
-                  <td className="action-icons"><button onClick={handleSave}>💾</button></td>
-                  <td className="action-icons"><button onClick={handleCancel}>❌</button></td>
+                  <td>
+                    <input
+                      type="text"
+                      value={editedEvent.player}
+                      onChange={(e) => handleChange(e, "player")}
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="text"
+                      value={editedEvent.action}
+                      onChange={(e) => handleChange(e, "action")}
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="text"
+                      value={editedEvent.result}
+                      onChange={(e) => handleChange(e, "result")}
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="number"
+                      value={editedEvent.x}
+                      onChange={(e) => handleChange(e, "x")}
+                      className="coords-input"
+                    />
+                    <input
+                      type="number"
+                      value={editedEvent.y}
+                      onChange={(e) => handleChange(e, "y")}
+                      className="coords-input"
+                    />
+                  </td>
+                  <td className="action-icons">
+                    <button onClick={handleSave}>💾</button>
+                  </td>
+                  <td className="action-icons">
+                    <button onClick={handleCancel}>❌</button>
+                  </td>
                 </>
               ) : (
                 <>
                   <td>{event.time}</td>
-                  <td>{event.player}</td>
+                  <td>{event.player?.name || event.player}</td>
                   <td>{event.action}</td>
                   <td>{event.result}</td>
-                  <td>{event.x},{event.y}</td>
-                  <td className="action-icons"><button onClick={() => handleEdit(event, index)}>✏️</button></td>
-                  <td className="action-icons"><button onClick={() => onDeleteEvent(event.id)}>🗑️</button></td>
+                  <td>
+                    {event.x},{event.y}
+                  </td>
+                  <td className="action-icons">
+                    <button onClick={() => handleEdit(event, index)}>✏️</button>
+                  </td>
+                  <td className="action-icons">
+                    <button onClick={() => onDeleteEvent(event.id)}>🗑️</button>
+                  </td>
                 </>
               )}
             </tr>

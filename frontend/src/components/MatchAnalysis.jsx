@@ -1,21 +1,21 @@
-import React, { useState, useEffect, useRef } from 'react';
-import './MatchAnalysis.css';
-import MatchHeader from './MatchHeader';
-import VideoPlayer from './VideoPlayer';
-import EventManager from './EventManager';
-import MatchTimeline from './MatchTimeline';
-import EventsTable from './EventsTable';
-import DataMatrix from './DataMatrix'; // Importar DataMatrix
-import DrawingTools from './DrawingTools';
-import api from '../services/api';
+import React, { useState, useEffect, useRef } from "react";
+import "./MatchAnalysis.css";
+import MatchHeader from "./MatchHeader";
+import VideoPlayer from "./VideoPlayer";
+import EventManager from "./EventManager";
+import MatchTimeline from "./MatchTimeline";
+import EventsTable from "./EventsTable";
+import DataMatrix from "./DataMatrix"; // Importar DataMatrix
+import DrawingTools from "./DrawingTools";
+import api from "../services/api";
 
 const MatchAnalysis = ({ matchId }) => {
   const [events, setEvents] = useState([]);
   const [videoTime, setVideoTime] = useState(0);
   const [players, setPlayers] = useState([]);
   const [videoDuration, setVideoDuration] = useState(0);
-  const [drawingTool, setDrawingTool] = useState('pen');
-  const [drawingColor, setDrawingColor] = useState('#ff0000');
+  const [drawingTool, setDrawingTool] = useState("pen");
+  const [drawingColor, setDrawingColor] = useState("#ff0000");
   const [drawingSize, setDrawingSize] = useState(5);
   const [playlist, setPlaylist] = useState(null); // Estado para la lista de reproducción temporal
 
@@ -26,19 +26,38 @@ const MatchAnalysis = ({ matchId }) => {
         const [lineupResponse, eventsResponse, _] = await Promise.all([
           api.getMatchLineup(matchId),
           api.getEvents(matchId),
-          api.getMatch(matchId) // This call increments the view count
+          api.getMatch(matchId), // This call increments the view count
         ]);
         // Extract player data from the lineup
-        const playersFromLineup = lineupResponse.data.map(lineupItem => lineupItem.player);
+        const playersFromLineup = lineupResponse.data.map(
+          (lineupItem) => lineupItem.player
+        );
         setPlayers(playersFromLineup);
         setEvents(eventsResponse.data);
       } catch (error) {
         console.error("Error fetching match data:", error);
         // Fallback mock data
-        setPlayers([{id: 1, name: 'Pérez'}, {id: 2, name: 'Gómez'}]);
+        setPlayers([
+          { id: 1, name: "Pérez" },
+          { id: 2, name: "Gómez" },
+        ]);
         setEvents([
-          { id: 1, timestamp: 753, player: {id: 1, name: 'Pérez'}, event_type: 'Pase', x: 50, y: 50 },
-          { id: 2, timestamp: 790, player: {id: 2, name: 'Gómez'}, event_type: 'Tiro', x: 80, y: 20 },
+          {
+            id: 1,
+            timestamp: 753,
+            player: { id: 1, name: "Pérez" },
+            event_type: "Pase",
+            x: 50,
+            y: 50,
+          },
+          {
+            id: 2,
+            timestamp: 790,
+            player: { id: 2, name: "Gómez" },
+            event_type: "Tiro",
+            x: 80,
+            y: 20,
+          },
         ]);
       }
     };
@@ -48,7 +67,7 @@ const MatchAnalysis = ({ matchId }) => {
   const addEvent = async (event) => {
     try {
       const newEvent = await api.createEvent(matchId, event);
-      setEvents(prevEvents => [...prevEvents, newEvent.data]);
+      setEvents((prevEvents) => [...prevEvents, newEvent.data]);
     } catch (error) {
       console.error("Error creating event:", error);
     }
@@ -57,7 +76,9 @@ const MatchAnalysis = ({ matchId }) => {
   const deleteEvent = async (eventId) => {
     try {
       await api.deleteEvent(eventId);
-      setEvents(prevEvents => prevEvents.filter(event => event.id !== eventId));
+      setEvents((prevEvents) =>
+        prevEvents.filter((event) => event.id !== eventId)
+      );
     } catch (error) {
       console.error("Error deleting event:", error);
     }
@@ -66,8 +87,8 @@ const MatchAnalysis = ({ matchId }) => {
   const updateEvent = async (eventId, updatedEventData) => {
     try {
       const updatedEvent = await api.updateEvent(eventId, updatedEventData);
-      setEvents(prevEvents => 
-        prevEvents.map(event => 
+      setEvents((prevEvents) =>
+        prevEvents.map((event) =>
           event.id === eventId ? updatedEvent.data : event
         )
       );
@@ -78,7 +99,13 @@ const MatchAnalysis = ({ matchId }) => {
 
   // Manejador para el clic en la celda de la matriz
   const handleMatrixCellClick = (player, action) => {
-    const filtered = events.filter(event => event.player === player && event.event_type === action);
+    const filtered = events.filter(
+      (event) =>
+        (event.player?.id === player.id ||
+          event.player === player.id ||
+          event.player?.id === Number(player.id)) &&
+        event.event_type === action
+    );
     setPlaylist(filtered);
     // Opcional: podrías querer saltar al primer evento de la lista de reproducción creada
     if (filtered.length > 0) {
@@ -111,10 +138,10 @@ const MatchAnalysis = ({ matchId }) => {
       <MatchHeader />
       <div className="main-content">
         <div className="left-panel">
-          <VideoPlayer 
+          <VideoPlayer
             ref={videoPlayerRef}
-            onTimeUpdate={handleTimeUpdate} 
-            onDurationChange={handleDurationChange} 
+            onTimeUpdate={handleTimeUpdate}
+            onDurationChange={handleDurationChange}
             tool={drawingTool}
             color={drawingColor}
             size={drawingSize}
@@ -128,24 +155,27 @@ const MatchAnalysis = ({ matchId }) => {
           />
         </div>
         <div className="right-panel">
-          <EventManager 
-            onAddEvent={addEvent} 
-            players={players} 
+          <EventManager
+            onAddEvent={addEvent}
+            players={players}
             videoTime={videoTime}
           />
         </div>
       </div>
-      <MatchTimeline 
-        events={filteredEvents} 
-        videoTime={videoTime} 
-        videoDuration={videoDuration} 
-        onTimelineClick={handleTimelineClick} 
+      <MatchTimeline
+        events={filteredEvents}
+        videoTime={videoTime}
+        videoDuration={videoDuration}
+        onTimelineClick={handleTimelineClick}
       />
       <DataMatrix events={events} onCellClick={handleMatrixCellClick} />
-      <EventsTable events={filteredEvents} onDeleteEvent={deleteEvent} onUpdateEvent={updateEvent} />
+      <EventsTable
+        events={filteredEvents}
+        onDeleteEvent={deleteEvent}
+        onUpdateEvent={updateEvent}
+      />
     </div>
   );
 };
-
 
 export default MatchAnalysis;

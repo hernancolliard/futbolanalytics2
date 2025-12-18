@@ -7,13 +7,27 @@ DB_URL = os.getenv("DATABASE_URL")
 if not DB_URL:
     raise RuntimeError("DATABASE_URL is not set")
 
-engine = create_engine(
-    DB_URL,
-    future=True,
-    pool_pre_ping=True,
-    pool_size=5,
-    max_overflow=10
-)
+# Ajustar opciones de engine según el dialecto. SQLite no acepta
+# pool_size / max_overflow en combinación con algunos tipos de pool,
+# así que sólo los aplicamos para otros motores (Postgres, etc.).
+engine_kwargs = {
+    "future": True,
+    "pool_pre_ping": True,
+}
+
+if DB_URL.startswith("sqlite"):
+    # Para SQLite (archivo o memory) deshabilitamos check_same_thread
+    # si es necesario y no pasamos pool_size/max_overflow.
+    connect_args = {"check_same_thread": False}
+    engine = create_engine(DB_URL, connect_args=connect_args, **engine_kwargs)
+else:
+    # Para otros motores (Postgres/MySQL) podemos usar tamaño de pool.
+    engine = create_engine(
+        DB_URL,
+        pool_size=5,
+        max_overflow=10,
+        **engine_kwargs
+    )
 
 SessionLocal = sessionmaker(
     bind=engine,
