@@ -281,8 +281,13 @@ def get_match(match_id):
 def list_buttons():
     db = get_db_session()
     try:
+        logging.info("Attempting to fetch buttons.")
         buttons = db.query(models.Button).all()
+        logging.info(f"Found {len(buttons)} buttons.")
         return jsonify([schemas.Button.from_orm(b).dict() for b in buttons])
+    except Exception as e:
+        logging.error(f"Error fetching buttons: {e}", exc_info=True)
+        return jsonify({"error": "Internal server error"}), 500
     finally:
         db.close()
 
