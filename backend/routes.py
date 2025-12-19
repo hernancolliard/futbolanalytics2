@@ -170,9 +170,27 @@ def create_match():
     db = get_db_session()
     try:
         logging.info(f"create_match called - Authorization: {request.headers.get('Authorization')}")
-        logging.info(f"create_match payload: {request.get_json()}")
-        data = request.get_json() or {}
-        validated = schemas.MatchCreate(**data)
+        payload = request.get_json() or {}
+        logging.info(f"create_match payload: {payload}")
+
+        # Compatibilidad: algunos clientes pueden enviar 'subject' en lugar de 'title'.
+        if 'subject' in payload and 'title' not in payload:
+            try:
+                payload['title'] = str(payload.pop('subject'))
+            except Exception:
+                payload['title'] = None
+
+        # Asegurar tipos mínimos para evitar errores crípticos de pydantic
+        if 'title' in payload and payload['title'] is not None:
+            payload['title'] = str(payload['title'])
+
+        try:
+            validated = schemas.MatchCreate(**payload)
+        except Exception as e:
+            # Loguear detalle de error de validación y devolver 422 con detalle
+            logging.exception("MatchCreate validation failed")
+            return jsonify({"error": "Validation failed", "detail": str(e)}), 422
+
         match = models.Match(**validated.dict())
 
         db.add(match)
