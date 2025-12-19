@@ -25,7 +25,17 @@ const AdminPanel = () => {
     if (isEditing) {
       await api.updateMatch(isEditing, form);
     } else {
-      await api.createMatch(form);
+      // Build payload compatible with backend MatchCreate schema
+      const payload = {
+        title: `${form.local} vs ${form.visitor}`,
+        date: form.date || null,
+        venue: null,
+        video_path: null,
+        home_team_id: null,
+        away_team_id: null,
+        notes: null,
+      };
+      await api.createMatch(payload);
     }
     resetForm();
     fetchMatches();
@@ -68,8 +78,7 @@ const AdminPanel = () => {
         <tbody>
           {matches.map(match => (
             <tr key={match.id}>
-              <td>{match.local}</td>
-              <td>{match.visitor}</td>
+              <td colSpan={1}>{match.title}</td>
               <td>{match.date}</td>
               <td>
                 <button onClick={() => handleEdit(match)}>Edit</button>
