@@ -9,12 +9,23 @@ DB_URL = os.getenv("DATABASE_URL")
 if not DB_URL:
     raise RuntimeError("DATABASE_URL is not set")
 
+from sqlalchemy import create_engine
+from sqlalchemy.engine import URL
+# ...
 # Normalizar URL de Postgres para forzar el uso de psycopg2
-db_url_normalized = DB_URL
-if db_url_normalized.startswith("postgres://"):
-    db_url_normalized = db_url_normalized.replace("postgres://", "postgresql+psycopg2://", 1)
-elif db_url_normalized.startswith("postgresql://"):
-    db_url_normalized = db_url_normalized.replace("postgresql://", "postgresql+psycopg2://", 1)
+try:
+    db_url_parsed = URL.create(DB_URL)
+    if db_url_parsed.drivername.startswith("postgresql"):
+        db_url_parsed = db_url_parsed.set(drivername="postgresql+psycopg2")
+    db_url_normalized = db_url_parsed
+except Exception as e:
+    logging.error(f"Could not parse and normalize DB_URL: {e}")
+    # Fallback to old method just in case
+    db_url_normalized = DB_URL
+    if db_url_normalized.startswith("postgres://"):
+        db_url_normalized = db_url_normalized.replace("postgres://", "postgresql+psycopg2://", 1)
+    elif db_url_normalized.startswith("postgresql://"):
+        db_url_normalized = db_url_normalized.replace("postgresql://", "postgresql+psycopg2://", 1)
 
 
 # Ajustar opciones de engine según el dialecto. SQLite no acepta
