@@ -169,7 +169,10 @@ def list_players():
 def create_match():
     db = get_db_session()
     try:
-        validated = schemas.MatchCreate(**request.get_json())
+        logging.info(f"create_match called - Authorization: {request.headers.get('Authorization')}")
+        logging.info(f"create_match payload: {request.get_json()}")
+        data = request.get_json() or {}
+        validated = schemas.MatchCreate(**data)
         match = models.Match(**validated.dict())
 
         db.add(match)
@@ -308,7 +311,10 @@ def list_buttons():
 def create_button():
     db = get_db_session()
     try:
-        validated = schemas.ButtonCreate(**request.get_json())
+        logging.info(f"create_button called - Authorization: {request.headers.get('Authorization')}")
+        logging.info(f"create_button payload: {request.get_json()}")
+        data = request.get_json() or {}
+        validated = schemas.ButtonCreate(**data)
         button = models.Button(**validated.dict())
 
         db.add(button)
