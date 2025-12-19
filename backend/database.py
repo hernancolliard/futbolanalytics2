@@ -32,6 +32,8 @@ if DB_URL.startswith("sqlite"):
     engine = create_engine(DB_URL, connect_args=connect_args, **engine_kwargs)
 else:
     # Para otros motores (Postgres/MySQL) podemos usar tamaño de pool.
+    logging.warning(f"DB_URL: {DB_URL}")
+    logging.warning(f"db_url_normalized: {db_url_normalized}")
     engine = create_engine(
         db_url_normalized,
         pool_size=5,
