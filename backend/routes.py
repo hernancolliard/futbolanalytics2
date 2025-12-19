@@ -184,6 +184,13 @@ def create_match():
         if 'title' in payload and payload['title'] is not None:
             payload['title'] = str(payload['title'])
 
+        # Normalizar fecha: aceptar 'YYYY-MM-DD' y convertir a 'YYYY-MM-DDT00:00:00'
+        if 'date' in payload and isinstance(payload['date'], str):
+            d = payload['date'].strip()
+            if d and 'T' not in d:
+                # añadir hora por defecto para que pydantic pueda parsear a datetime
+                payload['date'] = d + 'T00:00:00'
+
         try:
             validated = schemas.MatchCreate(**payload)
         except Exception as e:
