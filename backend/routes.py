@@ -10,6 +10,17 @@ import schemas
 
 bp = Blueprint("api", __name__)
 
+
+@bp.before_app_request
+def log_authorization_header():
+    try:
+        # Solo registrar para rutas API para evitar ruido excesivo
+        if request.path.startswith("/api"):
+            auth = request.headers.get("Authorization")
+            logging.info(f"Incoming request {request.method} {request.path} - Authorization: {auth}")
+    except Exception:
+        logging.exception("Failed to log Authorization header")
+
 # ------------------------------------------------------------------
 # Utils
 # ------------------------------------------------------------------
