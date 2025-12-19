@@ -6,17 +6,22 @@ import api from "../services/api";
 // decodificado o null si no es un JWT válido.
 function decodeJwt(token) {
   try {
-    const parts = token.split('.');
+    const parts = token.split(".");
     if (parts.length !== 3) return null;
-    const payload = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+    const payload = parts[1].replace(/-/g, "+").replace(/_/g, "/");
     let json;
-    if (typeof atob === 'function') {
+    if (typeof atob === "function") {
       const decoded = atob(payload);
-      json = decodeURIComponent(decoded.split('').map(function(c) {
-        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-      }).join(''));
-    } else if (typeof Buffer !== 'undefined') {
-      json = Buffer.from(payload, 'base64').toString('utf8');
+      json = decodeURIComponent(
+        decoded
+          .split("")
+          .map(function (c) {
+            return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
+          })
+          .join("")
+      );
+    } else if (typeof Buffer !== "undefined") {
+      json = Buffer.from(payload, "base64").toString("utf8");
     } else {
       return null;
     }
@@ -37,7 +42,7 @@ export const AuthProvider = ({ children }) => {
       try {
         const decoded = decodeJwt(token);
         if (decoded) setUser(decoded);
-        else throw new Error('Invalid token payload');
+        else throw new Error("Invalid token payload");
       } catch (error) {
         console.error("Error decoding token from localStorage:", error);
         // If token is invalid, clear it
@@ -65,8 +70,10 @@ export const AuthProvider = ({ children }) => {
         const decoded = decodeJwt(access_token);
         if (decoded) setUser(decoded);
         else {
-          console.error("Invalid access_token payload received from API. Clearing token.");
-          localStorage.removeItem('token');
+          console.error(
+            "Invalid access_token payload received from API. Clearing token."
+          );
+          localStorage.removeItem("token");
           setToken(null);
           setUser(null);
           throw new Error("Invalid token received from server.");

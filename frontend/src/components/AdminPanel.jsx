@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import './AdminPanel.css';
-import api from '../services/api';
+import React, { useState, useEffect } from "react";
+import "./AdminPanel.css";
+import api from "../services/api";
 
 const AdminPanel = () => {
   const [matches, setMatches] = useState([]);
-  const [form, setForm] = useState({ local: '', visitor: '', date: '' });
+  const [form, setForm] = useState({ local: "", visitor: "", date: "" });
   const [isEditing, setIsEditing] = useState(null);
 
   useEffect(() => {
@@ -53,17 +53,37 @@ const AdminPanel = () => {
 
   const resetForm = () => {
     setIsEditing(null);
-    setForm({ local: '', visitor: '', date: '' });
+    setForm({ local: "", visitor: "", date: "" });
   };
 
   return (
     <div className="admin-panel">
       <h2>Admin Panel</h2>
       <form onSubmit={handleSubmit}>
-        <input name="local" value={form.local} onChange={handleChange} placeholder="Local Team" required />
-        <input name="visitor" value={form.visitor} onChange={handleChange} placeholder="Visitor Team" required />
-        <input name="date" type="date" value={form.date} onChange={handleChange} required />
-        <button type="submit">{isEditing ? 'Update Match' : 'Create Match'}</button>
+        <input
+          name="local"
+          value={form.local}
+          onChange={handleChange}
+          placeholder="Local Team"
+          required
+        />
+        <input
+          name="visitor"
+          value={form.visitor}
+          onChange={handleChange}
+          placeholder="Visitor Team"
+          required
+        />
+        <input
+          name="date"
+          type="date"
+          value={form.date}
+          onChange={handleChange}
+          required
+        />
+        <button type="submit">
+          {isEditing ? "Update Match" : "Create Match"}
+        </button>
         {isEditing && <button onClick={resetForm}>Cancel</button>}
       </form>
       <table>
@@ -76,7 +96,7 @@ const AdminPanel = () => {
           </tr>
         </thead>
         <tbody>
-          {matches.map(match => (
+          {matches.map((match) => (
             <tr key={match.id}>
               <td colSpan={1}>{match.title}</td>
               <td>{match.date}</td>
